@@ -1,37 +1,21 @@
 package api
 
 import (
-	"fmt"
+	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
-	"github.com/sethdmoore/digo/globals"
-	"github.com/sethdmoore/digo/plugins"
 )
 
-func Listen(iface string) {
+var session *discordgo.Session
+
+func Listen(iface string, s *discordgo.Session) {
 	r := gin.Default()
-	r.GET("/version", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"version": globals.Version,
-		})
-	})
+	session = s
 
-	r.POST("/register/:plugin", func(c *gin.Context) {
-		var p plugins.Plugin
-		name := c.Param("plugin")
-		fmt.Println(name)
+	v1 := r.Group("/v1")
+	v1.GET("/version", version_v1)
+	v1.GET("/channels", channels_v1)
+	v1.POST("/register/:plugin", register_plugin_v1)
+	v1.POST("/message", message_v1)
 
-		err := c.BindJSON(&p)
-		if err == nil {
-			c.JSON(200, gin.H{
-				"info": fmt.Sprintf("%s is registered and enabled!", p.Name),
-			})
-		} else {
-			c.JSON(400, gin.H{
-				"message": "Cannot parse JSON",
-				"error":   fmt.Sprintf("%s", err),
-			})
-			fmt.Printf("%s\n", err)
-		}
-	})
 	r.Run(":8080")
 }

@@ -1,3 +1,4 @@
 package globals
 
-const Version = "0.1"
+const VERSION = "0.1"
+const APP_NAME = "Digo"
