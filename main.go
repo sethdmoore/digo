@@ -11,6 +11,7 @@ import (
 	"github.com/sethdmoore/digo/api"
 	"github.com/sethdmoore/digo/config"
 	"github.com/sethdmoore/digo/globals"
+	"github.com/sethdmoore/digo/plugins"
 )
 
 // q=Dota+2+Update+-+MAIN+CLIENT+-++author%3Asirbelvedere&amp=&restrict_sr=on&t=hour&sort=new
@@ -18,6 +19,7 @@ import (
 // need to package scope this
 // as there's no obvious way to pass other params to messageCreate
 var c *config.Config
+var p *plugins.Plugins
 
 func handleError(err error) {
 	if err != nil {
@@ -38,19 +40,12 @@ func messageCreate(s *discordgo.Session, m discordgo.Message) {
 
 func main() {
 	var err error
+	p = plugins.Init()
 	lock := make(chan int)
+
 	fmt.Println("nada")
-	//Uri := "https://discordapp.com/api/auth/login"
 	c = config.Init()
 	spew.Dump(c) //DEBUG
-	/*
-		res, err := goreq.Request{
-			Method:      "POST",
-			Uri:         Uri,
-			ContentType: "application/json",
-			Body:        c,
-		}.Do()
-	*/
 
 	dg := discordgo.Session{
 		OnMessageCreate: messageCreate,
@@ -66,6 +61,8 @@ func main() {
 	// shouldn't this be abstracted...?
 	err = dg.Handshake()
 	handleError(err)
+
+	go api.Listen("")
 
 	go dg.Listen()
 	fmt.Printf("Digo version %s\n", globals.Version)

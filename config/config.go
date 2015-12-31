@@ -7,9 +7,10 @@ import (
 )
 
 type Config struct {
-	Email    string `envconfig:"user" json:"email"`
-	Password string `envconfig:"pass" json:"password"`
-	Trigger  string `envconfig:"trigger" json:"trigger"`
+	Email     string `envconfig:"user" json:"email"`
+	Password  string `envconfig:"pass" json:"password"`
+	Trigger   string `envconfig:"trigger" json:"trigger"`
+	Interface string `envconfig:"interface" json:"interface"`
 	//Token    string `json:"token"`
 }
 
@@ -19,13 +20,12 @@ func Init() *Config {
 	if err != nil {
 		fmt.Println("ERROR")
 	}
+
 	if c.Trigger == "" {
 		fmt.Println("No trigger defined, defaulting to /bot")
 		c.Trigger = "/bot"
 	}
 
-	// pad the trigger with a space
-	c.Trigger += " "
 	//spew.Dump(c)
 	return &c
 }
