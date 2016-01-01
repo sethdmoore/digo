@@ -57,7 +57,7 @@ func main() {
 	spew.Dump(&dg.Token)
 
 	// enable the API
-	go api.Listen(c.Interface, &dg)
+	go api.Listen(c.Interface, &dg, c)
 
 	fmt.Printf("Digo version %s\n", globals.VERSION)
 

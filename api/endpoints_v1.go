@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/handler"
@@ -24,6 +25,20 @@ func register_plugin_v1(c *gin.Context) {
 			"error":   fmt.Sprintf("%s", err),
 		})
 		fmt.Printf("%s\n", err)
+	}
+}
+
+func channels_v1(c *gin.Context) {
+	var ch []discordgo.Channel
+	var err error
+	ch, err = session.GuildChannels(config.Guild)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": "Could not fetch channel information",
+			"error":   fmt.Sprintf("%s", err),
+		})
+	} else {
+		c.JSON(200, ch)
 	}
 }
 

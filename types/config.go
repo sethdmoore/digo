@@ -1,9 +1,5 @@
 package types
 
-import (
-	"github.com/bwmarrin/discordgo"
-)
-
 type Config struct {
 	Email     string `envconfig:"user" json:"email"`
 	Password  string `envconfig:"pass" json:"password"`

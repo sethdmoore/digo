@@ -24,7 +24,7 @@ func Init() *types.Config {
 	}
 
 	if c.Interface == "" {
-		c.Interface = "127.0.0.1:8081"
+		c.Interface = "127.0.0.1:8086"
 		fmt.Printf("WARN: No API interface defined, defaulting to %s\n", c.Interface)
 	}
 
