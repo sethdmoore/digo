@@ -58,18 +58,19 @@ name        | string | Required plugin name
 
 Once the plugin is registered, Digo will run the plugin whenever a trigger is mentioned in chat. Digo will pass every word after the trigger as an argument to the plugin.
 
-Example, in # general, Billy writes
-/yt cool cat videos
-The youtuber plugin will have
-sys.stdin = ["plugins/youtuber.py", "cool", "cat", "videos"]
+Example, in # general, Billy writes  
+/yt cool cat videos  
+The youtuber plugin will have  
+sys.stdin = ["plugins/youtuber.py", "cool", "cat", "videos"]  
 
-The stdout of the plugin ends up in chat channel the trigger was called from. Plugin stderr ends up in Digo's stdout (sorry).
+The stdout of the plugin ends up in chat channel the trigger was called from after it exits.
+Plugin stderr ends up in Digo's stdout (sorry).  
 
 If the trigger is mentioned with no arguments, Digo assumes the user needs help, and will simply pass "help" to the arguments of the plugin. The plugin is free to ignore this in the case of plugins that have only one function.
-Example, in #general, Billy writes
-/yt
-The youtuber plugin will respond with
-Usage: /yt search keywords
+Example, in #general, Billy writes  
+/yt  
+The youtuber plugin will respond with  
+Usage: /yt search keywords  
 
 Click here for a [fully working example script](examples/youtuber.py)
 
@@ -103,9 +104,13 @@ Example
 
 ```
 
-
 ## Compiling
 ```sh
 $ go get
 $ go build
 ```
+
+## Todo
+* cleaning up debug output
+* restart / resume disconnected sessions (sorry)
+* logging
