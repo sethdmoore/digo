@@ -2,7 +2,7 @@
 A pluggable bot for your Discord server, written in Golang.
 
 ## Features
-* a bot that runs arbitrary 
+* a bot that runs plugins
 * exposes a simple API for long-running services and daemons.
 * cross platform (should run on Windows, haven't tried it, though)
 
