@@ -2,7 +2,7 @@
 A pluggable bot for your Discord server, written in Golang.
 
 ## Features
-* currently does nothing out of the box. Plugins must be written or integrated.  
+* a bot that runs arbitrary 
 * exposes a simple API for long-running services and daemons.
 * cross platform (should run on Windows, haven't tried it, though)
 
@@ -111,6 +111,7 @@ $ go build
 ```
 
 ## Todo
+* allow triggering plugins from content of messages (regexp, instead of just /commands)
 * cleaning up debug output
 * restart / resume disconnected sessions (sorry)
 * logging
