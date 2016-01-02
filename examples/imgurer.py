@@ -68,14 +68,20 @@ def search(args, nsfw, client):
 
     potential_items = client.gallery_search(term)
     items = filter_results(potential_items, nsfw)
-    item = random.choice(items)
-    print item.link
+    try:
+        item = random.choice(items)
+        print item.link
+    except Exception as e:
+        print "No results for \"%s\" ;[" % " ".join(args)
 
 def rando(nsfw, client):
     potential_items = client.gallery_random()
     items = filter_results(potential_items, nsfw)
-    item = random.choice(items)
-    print item.link
+    try:
+        item = random.choice(items)
+        print item.link
+    except Exception as e:
+        print "Somehow random failed? %s" % e
 
 def main():
     client_id, client_secret = fetch_conf()
@@ -85,7 +91,7 @@ def main():
         if sys.argv[1] == "register":
             print json.dumps(config)
         elif sys.argv[1] == "help":
-            print_help
+            print_help()
         elif sys.argv[1] == "random":
             rando(False, client)
         elif sys.argv[1] == "randomnsfw":
