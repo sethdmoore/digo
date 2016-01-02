@@ -24,6 +24,12 @@ def print_help():
     print "usage: /imgur random"
 
 
+def no_results(args):
+    print "No results for \"%s\"" % " ".join(args)
+    sys.exit(0)
+
+
+
 def fetch_conf():
     conf_file = os.path.join(os.path.dirname(__file__), "_imgurer.conf")
     with open(conf_file, "r") as f:
@@ -68,45 +74,46 @@ def search(args, nsfw, client):
 
     potential_items = client.gallery_search(term)
     items = filter_results(potential_items, nsfw)
-    item = random.choice(items)
+    try:
+        item = random.choice(items)
+    except Exception as e:
+        no_results(args)
     print item.link
 
 def rando(nsfw, client):
     potential_items = client.gallery_random()
     items = filter_results(potential_items, nsfw)
-    item = random.choice(items)
+    try:
+        item = random.choice(items)
+    except Exception as e:
+        print "IMGUR API problem? No random image :[]"
+        sys.exit(0)
     print item.link
 
 def main():
     client_id, client_secret = fetch_conf()
     client = ImgurClient(client_id, client_secret)
-
-    try:
+    if len(sys.argv) == 2:
         if sys.argv[1] == "register":
             print json.dumps(config)
-        elif sys.argv[1] == "help":
-            print_help
         elif sys.argv[1] == "random":
             rando(False, client)
+        elif sys.argv[1] == "help":
+            print_help()
         elif sys.argv[1] == "randomnsfw":
             rando(True, client)
-        elif sys.argv[1] == "search":
-            try:
-                search(sys.argv[2:], False, client)
-            except IndexError as e:
-                print "Not enough arguments"
-                print "Search allows you to search for plugin reserved keywords"
-                print "Like /imgur search help ... or /imgur search register"
-        elif sys.argv[1] == "nsfw":
-            try:
-                search(sys.argv[2:], True, client)
-            except IndexError as e:
-                print "nsfw allows you to unfilter images marked nsfw"
-                print "Usage: /imgur nsfw hot action"
         else:
             search(sys.argv[1:], False, client)
-
-    except IndexError as e:
+    elif len(sys.argv) > 2:
+        if sys.argv[1] == "searchnsfw":
+            search(sys.argv[2:], True, client)
+        elif sys.argv[1] == "search":
+            search(sys.argv[2:], False, client)
+        else:
+            search(sys.argv[1:], False, client)
+    elif len(sys.argv) > 1:
+        search(sys.argv[1:], False, client)
+    else:
         print_help()
 
 
