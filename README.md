@@ -21,6 +21,59 @@ export DIGO_TRIGGER=/cmd  # defaults to /bot
 ./digo
 ```
 
+## Plugins
+Plugins can be written in any language. If the shell can execute the program, Digo will be able to use execute it as well.
+
+### Installing
+Digo scans the following paths (in order) to determine the plugin directory. If anyone cares, this could be made configurable.
+
+* /opt/digo/plugins
+* /usr/local/digo/plugins
+* ./plugins  # local to the binary
+
+Simply create one of those directories, place your plugin executables there, and Digo will do the rest!
+
+## Developing Plugins
+
+When Digo first starts, it iterates over most files in the plugins directory. If the file begins with "_" or "." it is skipped. These prefixes are useful if your plugin requires an external configuration file.
+
+Once it has the list of plugins, it runs the plugin with the argument "register". It expects the plugin to output JSON to stdout in the following format.
+
+```json
+{
+   "triggers" : [
+      "/youtube",
+      "/yt"
+   ],
+   "description" : "Searches youtube for keywords",
+   "name" : "youtuber"
+}
+```
+
+Field       | type   | description
+------------|--------|------------
+triggers    | array  | Commands that will trigger the plugin from the chat channels
+description | string | Plugin description shown for Digo's /plugins list
+name        | string | Required plugin name
+
+Once the plugin is registered, Digo will run the plugin whenever a trigger is mentioned in chat. Digo will pass every word after the trigger as an argument to the plugin.
+
+Example, in # general, Billy writes
+/yt cool cat videos
+The youtuber plugin will have
+sys.stdin = ["plugins/youtuber.py", "cool", "cat", "videos"]
+
+The stdout of the plugin ends up in chat channel the trigger was called from. Plugin stderr ends up in Digo's stdout (sorry).
+
+If the trigger is mentioned with no arguments, Digo assumes the user needs help, and will simply pass "help" to the arguments of the plugin. The plugin is free to ignore this in the case of plugins that have only one function.
+Example, in #general, Billy writes
+/yt
+The youtuber plugin will respond with
+Usage: /yt search keywords
+
+Click here for a [fully working example script](examples/youtuber.py)
+
+
 ## API
 The API exposes routes, but be careful as there is currently no security.
 
