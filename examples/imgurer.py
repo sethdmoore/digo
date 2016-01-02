@@ -80,6 +80,7 @@ def search(args, nsfw, client):
         no_results(args)
     print item.link
 
+
 def rando(nsfw, client):
     potential_items = client.gallery_random()
     items = filter_results(potential_items, nsfw)
@@ -89,6 +90,7 @@ def rando(nsfw, client):
         print "IMGUR API problem? No random image :[]"
         sys.exit(0)
     print item.link
+
 
 def main():
     client_id, client_secret = fetch_conf()
