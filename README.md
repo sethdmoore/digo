@@ -24,7 +24,7 @@ export DIGO_TRIGGER=/cmd  # defaults to /bot
 ## Plugins
 Plugins can be written in any language. If the shell can execute the program, Digo will be able to use execute it as well.
 
-### Installing
+### Installing Plugins
 Digo scans the following paths (in order) to determine the plugin directory. If anyone cares, this could be made configurable.
 
 * /opt/digo/plugins
@@ -33,7 +33,7 @@ Digo scans the following paths (in order) to determine the plugin directory. If 
 
 Simply create one of those directories, place your plugin executables there, and Digo will do the rest!
 
-## Developing Plugins
+### Developing Plugins
 
 When Digo first starts, it iterates over most files in the plugins directory. If the file begins with "_" or "." it is skipped. These prefixes are useful if your plugin requires an external configuration file.
 
