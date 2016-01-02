@@ -10,9 +10,9 @@ import (
 	"github.com/sethdmoore/digo/config"
 	"github.com/sethdmoore/digo/errhandler"
 	"github.com/sethdmoore/digo/globals"
-	"github.com/sethdmoore/digo/types"
-	//"github.com/sethdmoore/digo/plugins"
 	"github.com/sethdmoore/digo/handler"
+	"github.com/sethdmoore/digo/plugins"
+	"github.com/sethdmoore/digo/types"
 )
 
 // q=Dota+2+Update+-+MAIN+CLIENT+-++author%3Asirbelvedere&amp=&restrict_sr=on&t=hour&sort=new
@@ -26,11 +26,17 @@ func main() {
 	//p = plugins.Init()
 	lock := make(chan int)
 
+	// set up the config struct
 	c = config.Init()
 	spew.Dump(c) //DEBUG
 
-	// handler takes a config struct
-	handler.Init(c)
+	// set up the plugins struct
+	p := plugins.Init()
+	spew.Dump(p)
+	fmt.Println(p)
+
+	// handler takes reference to config and plugins structs
+	handler.Init(c, p)
 
 	dg := discordgo.Session{
 		OnMessageCreate: handler.MessageHandler,
@@ -53,7 +59,6 @@ func main() {
 	// listen for events on Discord
 	go dg.Listen()
 
-	spew.Dump(&dg.OnMessageCreate)
 	spew.Dump(&dg.Token)
 
 	// enable the API
