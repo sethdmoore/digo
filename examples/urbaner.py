@@ -36,8 +36,8 @@ def query(q):
         return
     elif j["result_type"] == "exact":
         word = j["list"][0]
-        print "**%s**" % word["word"]
-        print "%s" % word["permalink"]
+        #print "Urban Dictionary"
+        print ":  **%s** - Urban Dictionary" % word["word"]
         print "```%s```" % word["definition"]
 
 
