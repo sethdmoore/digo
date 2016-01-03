@@ -25,7 +25,7 @@ func print_help() string {
 func print_plugins() string {
 	var output []string
 	output = append(output, fmt.Sprintf("%s plugins", globals.APP_NAME))
-	output = append(output, fmt.Sprintf("%s plugins"), c.Trigger)
+	output = append(output, fmt.Sprintf("%s plugins", c.Trigger))
 	for _, plugin := range p.Plugins {
 		var s string
 		t := strings.Join(plugin.Triggers, ",  ")
