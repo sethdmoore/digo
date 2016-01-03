@@ -46,6 +46,7 @@ Once it has the list of plugins, it runs the plugin with the argument "register"
       "/yt"
    ],
    "description" : "Searches youtube for keywords",
+   "type": "simple",
    "name" : "youtuber"
 }
 ```
@@ -55,24 +56,31 @@ Field       | type   | description
 triggers    | array  | Commands that will trigger the plugin from the chat channels
 description | string | Plugin description shown for Digo's /plugins list
 name        | string | Required plugin name
+type        | string | simple (default) or json. See description below for details
 
+#### Simple type plugin
 Once the plugin is registered, Digo will run the plugin whenever a trigger is mentioned in chat. Digo will pass every word after the trigger as an argument to the plugin.
 
-Example, in # general, Billy writes  
-/yt cool cat videos  
-The youtuber plugin will have  
-sys.stdin = ["plugins/youtuber.py", "cool", "cat", "videos"]  
+##### Example, in # general, Billy writes  
+>/yt cool cat videos  
 
-The stdout of the plugin ends up in chat channel the trigger was called from after it exits.
-Plugin stderr ends up in Digo's stdout (sorry).  
+The youtuber plugis arguments will be ["plugins/youtuber.py", "cool", "cat", "videos"]  
+
+A simple plugins' stdout ends up in chat channel the trigger was called from after it exits.  
+Simple plugin stderr ends up in Digo's stdout (sorry).
 
 If the trigger is mentioned with no arguments, Digo assumes the user needs help, and will simply pass "help" to the arguments of the plugin. The plugin is free to ignore this in the case of plugins that have only one function.
 Example, in #general, Billy writes  
-/yt  
-The youtuber plugin will respond with  
-Usage: /yt search keywords  
+>/yt  
 
-Click here for a [fully working example script](examples/youtuber.py)
+The youtuber plugin will respond with  
+
+>Usage: /yt search keywords  
+
+#### Example Simple plugins included
+*[Youtube KeyWord Search](examples/youtuber.py)  
+*[Imgur Keyword Search](examples/imgurer.py)  
+*[Random Insult Generator](examples/insulter.py) - [Original Source](https://gist.github.com/quandyfactory/258915)
 
 
 ## API
