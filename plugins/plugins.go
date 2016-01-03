@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
+	//"github.com/davecgh/go-spew/spew"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/types"
 	"io/ioutil"
@@ -68,7 +68,7 @@ func register_plugin(dir string, file string) (p *types.Plugin, err error) {
 		fmt.Printf("%s\n", config)
 		return p, err
 	}
-	spew.Dump(config)
+	//spew.Dump(config)
 	return p, err
 }
 

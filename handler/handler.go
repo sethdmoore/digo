@@ -17,6 +17,24 @@ import (
 var c *types.Config
 var p *types.Plugins
 
+func print_help() string {
+	s := "This would print help"
+	return s
+}
+
+func print_plugins() string {
+	var output []string
+	output = append(output, fmt.Sprintf("%s plugins", globals.APP_NAME))
+	output = append(output, fmt.Sprintf("%s plugins"), c.Trigger)
+	for _, plugin := range p.Plugins {
+		var s string
+		t := strings.Join(plugin.Triggers, ",  ")
+		s = fmt.Sprintf("%s (%s) - %s", plugin.Name, t, plugin.Description)
+		output = append(output, s)
+	}
+	return strings.Join(output, "\n")
+}
+
 func check_triggers(triggers []string, message string) (status int, msg_split []string) {
 	msg_split = strings.Split(message, " ")
 
@@ -51,17 +69,36 @@ func check_triggers(triggers []string, message string) (status int, msg_split []
 func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 	var status int
 	var command []string
-	fmt.Printf("%20s %20s %20s > %s\n", m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
+	fmt.Printf("%20s %20s %20s > %s\n",
+		m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
+
+	// prevent the bot from triggering itself
+	if m.Author.ID == c.UserID {
+		return
+	}
 
 	// the /bot (or whatever) trigger alwqys has precedence
 	status, command = check_triggers([]string{c.Trigger}, m.Content)
 	if status == globals.MATCH {
 		s.ChannelMessageDelete(m.ChannelID, m.ID)
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Command \"%s\" received from %s", m.Content[len(c.Trigger):], m.Author.Username))
+		switch {
+		case command[1] == "help":
+			s.ChannelMessageSend(m.ChannelID, print_help())
+		case command[1] == "plugins":
+			s.ChannelMessageSend(m.ChannelID, print_plugins())
+		default:
+			s.ChannelMessageSend(m.ChannelID, print_plugins())
+		}
 		return
 	} else if status == globals.HELP {
 		s.ChannelMessageDelete(m.ChannelID, m.ID)
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("This would print help"))
+		s.ChannelMessageSend(m.ChannelID, print_plugins())
+		return
+	}
+
+	// clean up the command
+	if status != globals.NO_MATCH {
+		s.ChannelMessageDelete(m.ChannelID, m.ID)
 	}
 
 	for plugin_file, plugin := range p.Plugins {
@@ -81,6 +118,7 @@ func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 			}
 		}
 	}
+
 }
 
 func Message(s *discordgo.Session, m *types.Message) (int, error) {
@@ -88,7 +126,7 @@ func Message(s *discordgo.Session, m *types.Message) (int, error) {
 	var channels []string
 	var dchannels []discordgo.Channel
 	var err error
-	spew.Dump(s.OnMessageCreate)
+	//spew.Dump(s.OnMessageCreate)
 
 	if m.Prefix != "" {
 		message = fmt.Sprintf("%s: %s", m.Prefix, message)

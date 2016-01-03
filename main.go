@@ -3,9 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/davecgh/go-spew/spew"
-	//"github.com/jzelinskie/geddit"
-	//"github.com/franela/goreq"
+	//"github.com/davecgh/go-spew/spew"
 	"github.com/sethdmoore/digo/api"
 	"github.com/sethdmoore/digo/config"
 	"github.com/sethdmoore/digo/errhandler"
@@ -28,11 +26,9 @@ func main() {
 
 	// set up the config struct
 	c = config.Init()
-	spew.Dump(c) //DEBUG
 
 	// set up the plugins struct
 	p := plugins.Init()
-	spew.Dump(p)
 	fmt.Println(p)
 
 	// handler takes reference to config and plugins structs
@@ -44,6 +40,10 @@ func main() {
 
 	dg.Token, err = dg.Login(c.Email, c.Password)
 	errhandler.Handle(err)
+	user, err := dg.User("@me")
+	errhandler.Handle(err)
+
+	c.UserID = user.ID
 
 	// open websocket...
 	err = dg.Open()
@@ -58,8 +58,6 @@ func main() {
 
 	// listen for events on Discord
 	go dg.Listen()
-
-	spew.Dump(&dg.Token)
 
 	// enable the API
 	go api.Listen(c.Interface, &dg, c)

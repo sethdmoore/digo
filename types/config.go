@@ -6,5 +6,6 @@ type Config struct {
 	Trigger   string `envconfig:"trigger" json:"trigger" toml:"trigger"`
 	Interface string `envconfig:"interface" json:"interface" toml:"interface"`
 	Guild     string `envconfig:"server_id" json:"server_id" toml:"server_id"`
+	UserID    string // automatically set from discord server
 	//Token    string `json:"token"`
 }
