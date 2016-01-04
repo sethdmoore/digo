@@ -1,0 +1,14 @@
+{
+  "consumer_key": "XXXX",
+  "consumer_secret": "YYYY",
+  "access_token": "ZZZZ",
+  "access_token_secret": "123456",
+  "stalking": {
+    "discordapp": [
+      "*"
+    ],
+    "nihilist_arbys": [
+      "125728388009820160"
+    ]
+  }
+}
