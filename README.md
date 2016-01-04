@@ -78,10 +78,10 @@ The youtuber plugin will respond with
 >Usage: /yt search keywords  
 
 #### Example Simple plugins included
-* [Youtube KeyWord Search](examples/youtuber.py)  
-* [Imgur Keyword Search](examples/imgurer.py)  
-* [Urban Dictionary Search](examples/urbaner.py)  
-* [Random Insult Generator](examples/insulter.py) - [Original Source](https://gist.github.com/quandyfactory/258915)
+* [Youtube KeyWord Search](examples/plugins/youtuber.py)  
+* [Imgur Keyword Search](examples/plugins/imgurer.py)  
+* [Urban Dictionary Search](examples/plugins/urbaner.py)  
+* [Random Insult Generator](examples/plugins/insulter.py) - [Original Source](https://gist.github.com/quandyfactory/258915)
 
 
 ## API
