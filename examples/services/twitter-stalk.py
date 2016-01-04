@@ -135,7 +135,7 @@ def main():
             errors += 1
 
             # ignore hiccups before tuning backoff
-            if errors > 3
+            if errors > 3:
                 print "Tuning backoff from %s to %s" % (backoff, backoff * 2)
                 backoff *= 2
                 print "Sleeping for 15 minutes"
