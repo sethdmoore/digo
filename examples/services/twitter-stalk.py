@@ -114,6 +114,7 @@ def main():
     Stalk the accounts specified forever...
     """
     backoff = INTERVAL
+    errors = 0
     err = ""
 
     config = fetch_config()
@@ -131,11 +132,16 @@ def main():
         # exponential backoff
         # nice for tuning against rate limiting
         if err:
-            print "Tuning backoff from %s to %s" % (backoff, backoff * 2)
-            backoff *= 2
-            print "Sleeping for 15 minutes"
-            print "https://dev.twitter.com/rest/public/rate-limiting"
-            time.sleep(900)
+            errors += 1
+
+            # ignore hiccups before tuning backoff
+            if errors > 3
+                print "Tuning backoff from %s to %s" % (backoff, backoff * 2)
+                backoff *= 2
+                print "Sleeping for 15 minutes"
+                print "https://dev.twitter.com/rest/public/rate-limiting"
+                time.sleep(900)
+
             # don't want to sleep for 900 + backoff
             continue
 
