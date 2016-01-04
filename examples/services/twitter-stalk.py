@@ -7,7 +7,7 @@ import time
 import json
 
 DIGO_API = "http://127.0.0.1:8086/v1/message"
-INTERVAL = 120.0
+INTERVAL = 4600.0
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "twitter-stalk.conf")
 
 CONFIG_KEYS = ["consumer_key", "consumer_secret", "access_token", "stalking"]
@@ -69,7 +69,7 @@ def stalk(t, account):
     now = time.time()
     try:
         tweets = t.GetUserTimeline(screen_name=account,
-                                     count=2,
+                                     count=4,
                                      exclude_replies=True,
                                      include_rts=False)
     except Exception as e:
@@ -82,7 +82,7 @@ def stalk(t, account):
         tweet_time =  status.created_at_in_seconds
         delta = now - tweet_time
         if delta < INTERVAL:
-            print "New Tweet: @%s: %s" % (account, status.text)
+            print u"New Tweet: @%s: %s" % (account, status.text)
             statuses.append(status)
         else:
             pass
