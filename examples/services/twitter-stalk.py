@@ -75,7 +75,7 @@ def stalk(t, account):
     except Exception as e:
         print "Exception calling Twitter API. Probably rate limits"
         print "Could not utilize twitter API: %s" % e
-        err = "Exception: %s" % E
+        err = "Exception: %s" % e
         return [], err
 
     for status in tweets:
