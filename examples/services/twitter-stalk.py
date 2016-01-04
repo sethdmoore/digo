@@ -7,7 +7,7 @@ import time
 import json
 
 DIGO_API = "http://127.0.0.1:8086/v1/message"
-INTERVAL = 4600.0
+INTERVAL = 120.0
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "twitter-stalk.conf")
 
 CONFIG_KEYS = ["consumer_key", "consumer_secret", "access_token", "stalking"]
