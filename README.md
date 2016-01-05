@@ -100,6 +100,9 @@ The youtuber plugin will respond with
 * [Urban Dictionary Search](examples/plugins/urbaner.py)  
 * [Random Insult Generator](examples/plugins/insulter.py) - [Original Source](https://gist.github.com/quandyfactory/258915)
 
+#### Example Services included
+* [Twitter Stalker](examples/services)
+
 
 ## API
 The API exposes a few routes. Basic Authentication can be enabled by exporting
