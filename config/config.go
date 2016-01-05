@@ -14,6 +14,13 @@ func Init() *types.Config {
 	var c types.Config
 	prefix := strings.ToUpper(globals.APP_NAME)
 	err := envconfig.Process(prefix, &c)
+	if c.Email == "" || c.Password == "" {
+		fmt.Println("You must set the following environment variables")
+		fmt.Println("export DIGO_DISCORD_EMAIL")
+		fmt.Println("export DIGO_DISCORD_PASS")
+		os.Exit(1)
+	}
+
 	if err != nil {
 		fmt.Println("ERROR")
 	}

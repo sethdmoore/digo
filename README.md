@@ -13,14 +13,30 @@ Here is an example wrapper script.
 
 ```sh
 #!/bin/sh
-export DIGO_USER=foo  # required
-export DIGO_PASS=*****  # required
-export DIGO_SERVER_ID=123456789  # required
+export DIGO_DISCORD_EMAIL=foo@bar.com  # required
+export DIGO_DISCORD_PASS=*****  # required
+export DIGO_SERVER_ID=123456789  # required (AKA guild ID)
 export DIGO_DISABLE_API=false  # API defaults enabled
 export DIGO_API_INTERFACE=127.0.0.1:8081  # defaults to 127.0.0.1
+export DIGO_API_USERNAME=mydigo # Basic Auth username for API
+export DIGO_API_PASSWORD=secretpass  # Basic Auth password for API
 export DIGO_TRIGGER=/cmd  # defaults to /bot
+export DIGO_LOG_LEVEL=info  # set to debug at your own risk
 ./digo
 ```
+
+setting             |   type    |   description                                          |   required
+--------------------|-----------|--------------------------------------------------------|----------
+DIGO_DISCORD_EMAIL  |  string   | Bot's discord login email                              | yes
+DIGO_DISCORD_PASS   |  strirg   | Bot's discord login pass                               | yes
+DIGO_SERVER_ID      |  string   | Discord server ID (guild)                              | yes
+DIGO_DISABLE_API    |  boolean  | Disable Digo API (default enabled)                     | No
+DIGO_API_INTERFACE  |  string   | Interface API listens on (def: 127.0.0.1:8086)         | No
+DIGO_API_USERNAME   |  string   | Basic Auth username for the API                        | No
+DIGO_API_PASSWORD   |  string   | Basic auth password for the API                        | No
+DIGO_TRIGGER        |  string   | Bot trigger for chat (def: /bot)                       | No
+DIGO_REMOVE_TRIGGERS|  string   | Remove triggers from chat (like they're real cmds)     | No
+DIGO_LOG_LEVEL      |  string   | Log messages to filter.[debug, warn, error] (def: info)| No
 
 ## Plugins
 Plugins can be written in any language. If the shell can execute the program, Digo will be able to use execute it as well.

@@ -4,7 +4,9 @@ package types
 	Email           digo login email
 	Password        digo login password
 	Trigger         /trigger for internal bot commands
-	Interface       API interface, options like "127.0.0.1:8080", ":80", and "0.0.0.0:1009"
+	ApiInterface    interface API listens on, like "127.0.0.1:8080", ":80", and "0.0.0.0:1009"
+	ApiUsername     Basic Auth username for API
+	ApiPassword     Basic Auth password for API
 	RemoveTriggers  Remove all plugin / bot triggers from chat
 	Guild           server to connect to
 	LogDir          log directory
@@ -14,12 +16,14 @@ package types
 */
 
 type Config struct {
-	Email          string `envconfig:"user" json:"email" toml:"email"`
-	Password       string `envconfig:"pass" json:"password" toml:"password"`
+	Email          string `envconfig:"discord_email" json:"discord_email" toml:"discord_email"`
+	Password       string `envconfig:"discord_pass" json:"discord_pass" toml:"discord_pass"`
 	Trigger        string `envconfig:"trigger" json:"trigger" toml:"trigger"`
 	RemoveTriggers bool   `envconfig:"remove_triggers" json:"remove_triggers" toml:"remove_triggers"`
 	DisableApi     bool   `envconfig:"disable_api" json:"disable_api" toml:"disable_api"`
-	ApiInterface   string `envconfig:"interface" json:"interface" toml:"interface"`
+	ApiInterface   string `envconfig:"api_interface" json:"api_interface" toml:"api_interface"`
+	ApiUsername    string `envconfig:"api_username" json:"api_username" toml:"api_username"`
+	ApiPassword    string `envconfig:"api_password" json:"api_password" toml:"api_password"`
 	Guild          string `envconfig:"server_id" json:"server_id" toml:"server_id"`
 	LogDir         string `envconfig:"log_directory" json:"log_directory" toml:"log_directory"`
 	LogFile        string `envconfig:"log_file" json:"log_file" toml:"log_file"`
