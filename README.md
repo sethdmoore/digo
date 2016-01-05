@@ -145,5 +145,4 @@ $ go build
 * hot registering / reloading when new plugins are added (without restart)
 * logging
 * allow triggering plugins from content of messages (regexp, instead of just /commands)
-* cleaning up debug output
 * Godeps
