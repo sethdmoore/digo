@@ -102,7 +102,8 @@ The youtuber plugin will respond with
 
 
 ## API
-The API exposes routes, but be careful as there is currently no security.
+The API exposes a few routes. Basic Authentication can be enabled by exporting
+DIGO_API_USERNAME and DIGO_API_PASSWORD.
 
 route         | method | description
 --------------|--------|------------
