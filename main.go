@@ -1,19 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bwmarrin/discordgo"
+	//"github.com/op/go-logging"
 	//"github.com/davecgh/go-spew/spew"
 	"github.com/sethdmoore/digo/api"
 	"github.com/sethdmoore/digo/config"
 	"github.com/sethdmoore/digo/errhandler"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/handler"
+	"github.com/sethdmoore/digo/logger"
 	"github.com/sethdmoore/digo/plugins"
 	"github.com/sethdmoore/digo/types"
 )
-
-// q=Dota+2+Update+-+MAIN+CLIENT+-++author%3Asirbelvedere&amp=&restrict_sr=on&t=hour&sort=new
 
 func main() {
 	var err error
@@ -27,12 +26,15 @@ func main() {
 	// set up the config struct
 	c = config.Init()
 
+	// set the log reference to pass around
+	log := logger.Init(c)
+
 	// set up the plugins struct
-	p := plugins.Init()
-	fmt.Println(p)
+	p := plugins.Init(log)
+	//log.Notice()
 
 	// handler takes reference to config and plugins structs
-	handler.Init(c, p)
+	handler.Init(c, p, log)
 
 	dg := discordgo.Session{
 		OnMessageCreate: handler.MessageHandler,
@@ -40,9 +42,10 @@ func main() {
 
 	dg.Token, err = dg.Login(c.Email, c.Password)
 	errhandler.Handle(err)
+
+	// determine the bot's userID
 	user, err := dg.User("@me")
 	errhandler.Handle(err)
-
 	c.UserID = user.ID
 
 	// open websocket...
@@ -59,10 +62,14 @@ func main() {
 	// listen for events on Discord
 	go dg.Listen()
 
-	// enable the API
-	go api.Listen(c.Interface, &dg, c)
+	// enable the API, if applicable
+	if c.DisableApi {
+		log.Notice("API explicitly disabled.")
+	} else {
+		go api.Listen(c.ApiInterface, &dg, c, log)
+	}
 
-	fmt.Printf("Digo version %s\n", globals.VERSION)
+	log.Noticef("Digo v%s Online", globals.VERSION)
 
 	<-lock
 }

@@ -2,9 +2,9 @@
 A pluggable bot for your Discord server, written in Golang.
 
 ## Features
-* a bot that runs plugins
+* a bot that runs easy-to-write plugins
 * exposes a simple API for long-running services and daemons.
-* cross platform (should run on Windows, haven't tried it, though)
+* cross platform (Linux, Mac, in theory, Windows?)
 
 ## Configuration
 Currently, Digo is configured through environment variables. Might support configuration files (TOML?) if anyone cares.  
@@ -16,7 +16,8 @@ Here is an example wrapper script.
 export DIGO_USER=foo  # required
 export DIGO_PASS=*****  # required
 export DIGO_SERVER_ID=123456789  # required
-export DIGO_INTERFACE=127.0.0.1:8081  # defaults to 127.0.0.1
+export DIGO_DISABLE_API=false  # API defaults enabled
+export DIGO_API_INTERFACE=127.0.0.1:8081  # defaults to 127.0.0.1
 export DIGO_TRIGGER=/cmd  # defaults to /bot
 ./digo
 ```
@@ -120,7 +121,9 @@ $ go build
 ```
 
 ## Todo
+* restart / resume disconnected sessions without restarting Digo (sorry)
+* hot registering / reloading when new plugins are added (without restart)
+* logging
 * allow triggering plugins from content of messages (regexp, instead of just /commands)
 * cleaning up debug output
-* restart / resume disconnected sessions (sorry)
-* logging
+* Godeps

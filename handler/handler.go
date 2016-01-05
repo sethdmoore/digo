@@ -3,19 +3,20 @@ package handler
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/davecgh/go-spew/spew"
+	//"github.com/davecgh/go-spew/spew"
 	//"github.com/sethdmoore/digo/errhandler"
+	"github.com/op/go-logging"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/plugins"
 	"github.com/sethdmoore/digo/types"
 	"strings"
-	"time"
 )
 
 // need to package scope this
 // as there's no obvious way to pass other params to MessageHandler
 var c *types.Config
 var p *types.Plugins
+var log *logging.Logger
 
 func print_help() string {
 	s := "This would print help"
@@ -33,6 +34,13 @@ func print_plugins() string {
 		output = append(output, s)
 	}
 	return strings.Join(output, "\n")
+}
+
+func message_delete(s *discordgo.Session, chan_id string, m_id string) {
+	if c.RemoveTriggers {
+		s.ChannelMessageDelete(chan_id, m_id)
+
+	}
 }
 
 func check_triggers(triggers []string, message string) (status int, msg_split []string) {
@@ -69,8 +77,7 @@ func check_triggers(triggers []string, message string) (status int, msg_split []
 func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 	var status int
 	var command []string
-	fmt.Printf("%20s %20s %20s > %s\n",
-		m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
+	log.Infof("%s %s > %s", m.ChannelID, m.Author.Username, m.Content)
 
 	// prevent the bot from triggering itself
 	if m.Author.ID == c.UserID {
@@ -80,7 +87,7 @@ func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 	// the /bot (or whatever) trigger alwqys has precedence
 	status, command = check_triggers([]string{c.Trigger}, m.Content)
 	if status == globals.MATCH {
-		s.ChannelMessageDelete(m.ChannelID, m.ID)
+		message_delete(s, m.ChannelID, m.ID)
 		switch {
 		case command[1] == "help":
 			s.ChannelMessageSend(m.ChannelID, print_help())
@@ -91,27 +98,27 @@ func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 		}
 		return
 	} else if status == globals.HELP {
-		s.ChannelMessageDelete(m.ChannelID, m.ID)
+		message_delete(s, m.ChannelID, m.ID)
 		s.ChannelMessageSend(m.ChannelID, print_plugins())
 		return
 	}
 
 	// clean up the command
 	if status != globals.NO_MATCH {
-		s.ChannelMessageDelete(m.ChannelID, m.ID)
+		message_delete(s, m.ChannelID, m.ID)
 	}
 
 	for plugin_file, plugin := range p.Plugins {
 		status, command = check_triggers(plugin.Triggers, m.Content)
 		if status == globals.MATCH {
-			s.ChannelMessageDelete(m.ChannelID, m.ID)
+			message_delete(s, m.ChannelID, m.ID)
 			output, err := plugins.Exec(p.Directory, plugin_file, command[1:])
 			if err == nil {
 				s.ChannelMessageSend(m.ChannelID, string(output))
 			}
 			break
 		} else if status == globals.HELP {
-			s.ChannelMessageDelete(m.ChannelID, m.ID)
+			message_delete(s, m.ChannelID, m.ID)
 			output, err := plugins.Exec(p.Directory, plugin_file, []string{"help"})
 			if err == nil {
 				s.ChannelMessageSend(m.ChannelID, string(output))
@@ -126,14 +133,12 @@ func Message(s *discordgo.Session, m *types.Message) (int, error) {
 	var channels []string
 	var dchannels []discordgo.Channel
 	var err error
-	//spew.Dump(s.OnMessageCreate)
 
 	if m.Prefix != "" {
 		message = fmt.Sprintf("%s: %s", m.Prefix, message)
 	}
 
 	if m.Channels[0] == "*" {
-		fmt.Println("wildcard!")
 		dchannels, err = s.GuildChannels(c.Guild)
 
 		if err != nil {
@@ -142,15 +147,13 @@ func Message(s *discordgo.Session, m *types.Message) (int, error) {
 		//errhandler.Handle(err)
 
 		for _, chann := range dchannels {
-			//spew.Dump(chann)
 			channels = append(channels, chann.ID)
 		}
 
 	} else {
 		channels = m.Channels
 	}
-	fmt.Printf("%s\n", len(channels))
-	spew.Dump(channels)
+	log.Debugf("%s\n", len(channels))
 
 	for _, channel := range channels {
 		s.ChannelMessageSend(channel, message)
@@ -158,8 +161,9 @@ func Message(s *discordgo.Session, m *types.Message) (int, error) {
 	return globals.OK, nil
 }
 
-func Init(config *types.Config, plugins *types.Plugins) {
+func Init(config *types.Config, plugins *types.Plugins, logger *logging.Logger) {
 	// set the config pointer
 	c = config
 	p = plugins
+	log = logger
 }

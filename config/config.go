@@ -23,9 +23,9 @@ func Init() *types.Config {
 		fmt.Printf("No trigger defined, defaulting to %s\n", c.Trigger)
 	}
 
-	if c.Interface == "" {
-		c.Interface = "127.0.0.1:8086"
-		fmt.Printf("WARN: No API interface defined, defaulting to %s\n", c.Interface)
+	if c.ApiInterface == "" {
+		c.ApiInterface = "127.0.0.1:8086"
+		fmt.Printf("WARN: No API interface defined, defaulting to %s\n", c.ApiInterface)
 	}
 
 	if c.Guild == "" {
