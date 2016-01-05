@@ -22,7 +22,7 @@ Since it's written in Python and this is only an "example", this is easily chang
       "*"
     ],
     "nihilist_arbys": [
-      "125728388009820160"
+      "123456789012345678"
     ]
   }
 }
