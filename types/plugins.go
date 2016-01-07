@@ -8,7 +8,7 @@ type PluginResponse struct {
 	//Users    []string `json:"users"`	// users
 }
 
-type PluginRequest struct {
+type PluginMessage struct {
 	User      string   `json:"user"`      // user that called the trigger
 	Channel   string   `json:"channel"`   // channel trigger was called from
 	Arguments []string `json:"arguments"` // arguments sent from the trigger

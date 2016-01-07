@@ -132,7 +132,11 @@ func Exec(dir string, command string, arguments []string) (output []byte, err er
 	return output, err
 }
 
-func ExecJson(dir string, command string, arguments *types.PluginRequest) {
+func ExecJson(dir string, command string, arguments *types.PluginMessage) {
+	/*
+		path := filepath.FromSlash(dir + "/" + command)
+		cmd := exec.Command(path, z)
+	*/
 }
 
 func Init(logger *logging.Logger) *types.Plugins {

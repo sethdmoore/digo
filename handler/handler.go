@@ -5,6 +5,7 @@ import (
 	"github.com/sethdmoore/discordgo"
 	//"github.com/davecgh/go-spew/spew"
 	//"github.com/sethdmoore/digo/errhandler"
+	//"encoding/json"
 	"github.com/op/go-logging"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/plugins"
@@ -41,6 +42,10 @@ func message_delete(s *discordgo.Session, chan_id string, m_id string) {
 		s.ChannelMessageDelete(chan_id, m_id)
 
 	}
+}
+
+func handle_json_plugin(out []byte) {
+
 }
 
 func check_triggers(triggers []string, message string) (status int, msg_split []string) {
@@ -123,7 +128,16 @@ func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 				break
 
 			} else if plugin.Type == "json" {
-
+				var message types.PluginMessage
+				message.Arguments = command[1:]
+				message.User = m.Author.Username
+				message.Channel = m.ChannelID
+				/*
+					output, err := plugins.ExecJson(p.Directory, plugin_file, &m)
+					if err == nil {
+						handle_json_plugin(output)
+					}
+				*/
 			}
 		} else if status == globals.HELP {
 			message_delete(s, m.ChannelID, m.ID)
