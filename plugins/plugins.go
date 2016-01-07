@@ -71,6 +71,19 @@ func register_plugin(dir string, file string) (p *types.Plugin, err error) {
 		log.Debugf("%s\n", config)
 		return p, err
 	}
+	// default to simple type plugin
+	if p.Type == "" {
+		p.Type = "simple"
+	}
+
+	if p.Type == "simple" {
+		log.Debugf("Simple plugin %s registered", p.Name)
+	} else if p.Type == "json" {
+		log.Debug("JSON plugin %s  registered", p.Name)
+	} else {
+		log.Warningf("Plugin of unknown type registered: %s", p.Type)
+		log.Warning("Valid types: simple, json")
+	}
 	//spew.Dump(config)
 	return p, err
 }
@@ -117,6 +130,9 @@ func Exec(dir string, command string, arguments []string) (output []byte, err er
 		log.Debugf("%s\n", output)
 	}
 	return output, err
+}
+
+func ExecJson(dir string, command string, arguments *types.PluginRequest) {
 }
 
 func Init(logger *logging.Logger) *types.Plugins {

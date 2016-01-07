@@ -11,32 +11,38 @@ Currently, Digo is configured through environment variables. Might support confi
 Your server ID (also known as Guild ID) can be [found here](https://support.discordapp.com/hc/en-us/articles/206346498)  
 Here is an example wrapper script.
 
+
 ```sh
 #!/bin/sh
-export DIGO_DISCORD_EMAIL=foo@bar.com  # required
-export DIGO_DISCORD_PASS=*****  # required
-export DIGO_SERVER_ID=123456789  # required (AKA guild ID)
-export DIGO_DISABLE_API=false  # API defaults enabled
-export DIGO_API_INTERFACE=127.0.0.1:8081  # defaults to 127.0.0.1
-export DIGO_API_USERNAME=mydigo # Basic Auth username for API
-export DIGO_API_PASSWORD=secretpass  # Basic Auth password for API
-export DIGO_TRIGGER=/cmd  # defaults to /bot
+export DIGO_DISCORD_EMAIL=foo@bar.com
+export DIGO_DISCORD_PASS=*****
+export DIGO_SERVER_ID=123456789
+export DIGO_DISABLE_API=false
+export DIGO_API_INTERFACE=127.0.0.1:8086
+export DIGO_API_USERNAME=mydigo
+export DIGO_API_PASSWORD=secretpass
+export DIGO_TRIGGER=/bot
 export DIGO_LOG_LEVEL=info  # set to debug at your own risk
 ./digo
 ```
 
-setting             |   type    |   description                                          |   required
---------------------|-----------|--------------------------------------------------------|----------
-DIGO_DISCORD_EMAIL  |  string   | Bot's discord login email                              | yes
-DIGO_DISCORD_PASS   |  strirg   | Bot's discord login pass                               | yes
-DIGO_SERVER_ID      |  string   | Discord server ID (guild)                              | yes
-DIGO_DISABLE_API    |  boolean  | Disable Digo API (default enabled)                     | No
-DIGO_API_INTERFACE  |  string   | Interface API listens on (def: 127.0.0.1:8086)         | No
-DIGO_API_USERNAME   |  string   | Basic Auth username for the API                        | No
-DIGO_API_PASSWORD   |  string   | Basic auth password for the API                        | No
-DIGO_TRIGGER        |  string   | Bot trigger for chat (def: /bot)                       | No
-DIGO_REMOVE_TRIGGERS|  string   | Remove triggers from chat (like they're real cmds)     | No
-DIGO_LOG_LEVEL      |  string   | Log messages to filter.[debug, warn, error] (def: info)| No
+setting             |   type    | default        |   description                                          | required
+--------------------|-----------|-------------------------------------------------------------------------|---------
+DIGO_DISCORD_EMAIL  |  string   | xxxxxxx        | Bot's discord login email                              | yes
+DIGO_DISCORD_PASS   |  strirg   | xxxxxxx        | Bot's discord login pass                               | yes
+DIGO_SERVER_ID      |  string   | xxxxxxx        | Discord server ID (guild)                              | yes
+DIGO_DISABLE_API    |  boolean  | false          | Disable Digo API (default enabled)                     | No
+DIGO_API_INTERFACE  |  string   | 127.0.0.1:8086 | Interface API listens on                               | No
+DIGO_API_USERNAME   |  string   | <unset>        | Basic Auth username for the API                        | No
+DIGO_API_PASSWORD   |  string   | <unset>        | Basic auth password for the API. If unset, no auth.    | No
+DIGO_TRIGGER        |  string   | /bot           | Bot trigger for chat                                   | No
+DIGO_LEAVE_TRIGGERS |  boolean  | false          | Leave triggers in chat. Otherwise, triggers are deleted| No
+DIGO_LOG_LEVEL      |  string   | info           | Log level to show. (debug, notice, warn, error)        | No
+
+Digo only needs the following permissions from Discord:
+* Read Messages
+* Send Messages
+* Manage Messages (if DIGO_LEAVE_TRIGGERS is false, to delete trigger messages)
 
 ## Plugins
 Plugins can be written in any language. If the shell can execute the program, Digo will be able to use execute it as well.
@@ -71,7 +77,7 @@ Once it has the list of plugins, it runs the plugin with the argument "register"
 Field       | type   | description
 ------------|--------|------------
 triggers    | array  | Commands that will trigger the plugin from the chat channels
-description | string | Plugin description shown for Digo's /plugins list
+description | string | Plugin description shown for Digo's /bot plugins
 name        | string | Required plugin name
 type        | string | simple (default) or json. See description below for details
 

@@ -1,4 +1,7 @@
 {
+  "digo_api_url": "http://127.0.0.1:8086",
+  "basic_auth_user": "digoapi",
+  "basic_auth_password": "abcxyz1234,
   "consumer_key": "XXXX",
   "consumer_secret": "YYYY",
   "access_token": "ZZZZ",

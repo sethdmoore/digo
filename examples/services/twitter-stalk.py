@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 import requests
+from requests.auth import HTTPBasicAuth
 import twitter
 import os
 import sys
 import time
 import json
 
-DIGO_API = "http://127.0.0.1:8086/v1/message"
-INTERVAL = 120.0
+DIGO_MSG_ROUTE = "v1/message"
+
+INTERVAL = 200.0
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "twitter-stalk.conf")
 
-CONFIG_KEYS = ["consumer_key", "consumer_secret", "access_token", "stalking"]
+CONFIG_KEYS = ["consumer_key", "consumer_secret", "access_token", "stalking", "digo_api_url"]
 
 def validate_config(config):
     """
@@ -24,6 +26,10 @@ def validate_config(config):
         print "Error! The following keys are missing from %s" % CONFIG_FILE
         print ", ".join(missing)
         sys.exit(2)
+    if "basic_auth_user" in config and "basic_auth_password" in config:
+        if config["basic_auth_user"] and config["basic_auth_password"]:
+            print "Basic auth enabled for API"
+
 
 
 def fetch_config():
@@ -90,8 +96,20 @@ def stalk(t, account):
     return statuses, err
 
 
-def post_statuses(account, statuses, channels):
+def post_statuses(config, account, statuses, channels):
     h = {"content-type": "application/json"}
+    auth_enabled = False
+    api = "/".join((config["digo_api_url"], DIGO_MSG_ROUTE))
+
+
+    if "basic_auth_user" in config and "basic_auth_password" in config:
+        if config["basic_auth_password"] and config["basic_auth_user"]:
+            auth_enabled = True
+
+    if auth_enabled:
+        user = config["basic_auth_user"]
+        passwd = config["basic_auth_password"]
+        auth = HTTPBasicAuth(user, passwd)
 
     for status in statuses:
         message = []
@@ -100,9 +118,20 @@ def post_statuses(account, statuses, channels):
         message.append("**@%s** - Twitter - %s" % (account, src))
         j = {"prefix": "", "payload": message, "channels": channels}
         try:
-            r = requests.post(DIGO_API, headers=h, json=j)
-            if r.status_code != 200:
-                print "Could not reach the Digo API"
+            if auth_enabled:
+                r = requests.post(api, headers=h, json=j, auth=auth)
+            else:
+                r = requests.post(api, headers=h, json=j)
+
+            if r.status_code == 200:
+                print "Posted successfully to Digo API"
+            elif r.status_code == 401:
+                print "Received 401 Unauthorized from Digo API"
+                print 'Please set "basic_auth_user" and "basic_auth_password"'
+                print "in %s" % CONFIG_FILE
+            else:
+                print "Unhandled error hitting the Digo API"
+                print "Received %s, expecting 200 or 401" % r.status_code
         except Exception as e:
             print "Exception contacting HTTP API: %s" % e
             continue
@@ -127,7 +156,7 @@ def main():
             # exit loop immediately if rate limited
             if err:
                 break
-            post_statuses(account, statuses, channels)
+            post_statuses(config, account, statuses, channels)
 
         # exponential backoff
         # nice for tuning against rate limiting

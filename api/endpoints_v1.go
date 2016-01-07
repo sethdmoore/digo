@@ -2,13 +2,16 @@ package api
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
+	//"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/handler"
 	"github.com/sethdmoore/digo/types"
+	"github.com/sethdmoore/discordgo"
 )
 
+/*
+// Probably won't ever use this
 func register_plugin_v1(c *gin.Context) {
 	var p types.Plugin
 	name := c.Param("plugin")
@@ -27,8 +30,11 @@ func register_plugin_v1(c *gin.Context) {
 		fmt.Printf("%s\n", err)
 	}
 }
+*/
 
 func channels_v1(c *gin.Context) {
+	// this route is expensive since it's doing live fetching of channel information
+	// expensive as in ~100ms
 	var ch []discordgo.Channel
 	var err error
 	ch, err = session.GuildChannels(config.Guild)
@@ -43,12 +49,13 @@ func channels_v1(c *gin.Context) {
 }
 
 func message_v1(c *gin.Context) {
+	// this route is also expensive, since it ends up POSTing to Discord's API
 	var m *types.Message
 	err := c.BindJSON(&m)
 	if err == nil {
 		if len(m.Channels) > 0 {
-			status, err := handler.Message(session, m)
-			if status == globals.OK {
+			err := handler.Message(session, m)
+			if err == nil {
 				c.JSON(200, gin.H{
 					"info": fmt.Sprintf("Sent message successfully"),
 				})

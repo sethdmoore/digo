@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/bwmarrin/discordgo"
+	//"github.com/bwmarrin/discordgo"
 	//"github.com/op/go-logging"
 	//"github.com/davecgh/go-spew/spew"
 	"github.com/sethdmoore/digo/api"
 	"github.com/sethdmoore/digo/config"
+	"github.com/sethdmoore/digo/conn"
 	"github.com/sethdmoore/digo/errhandler"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/handler"
@@ -28,6 +29,7 @@ func main() {
 
 	// set the log reference to pass around
 	log := logger.Init(c)
+	errhandler.Init(log)
 
 	// set up the plugins struct
 	p := plugins.Init(log)
@@ -36,37 +38,26 @@ func main() {
 	// handler takes reference to config and plugins structs
 	handler.Init(c, p, log)
 
-	dg := discordgo.Session{
-		OnMessageCreate: handler.MessageHandler,
-	}
-
-	dg.Token, err = dg.Login(c.Email, c.Password)
-	errhandler.Handle(err)
+	// login / websocket flow
+	s := conn.Init(c, log)
 
 	// determine the bot's userID
-	user, err := dg.User("@me")
+	user, err := s.User("@me")
 	errhandler.Handle(err)
+
 	c.UserID = user.ID
-
-	// open websocket...
-	err = dg.Open()
-	errhandler.Handle(err)
-
-	// shouldn't this be abstracted...?
-	err = dg.Handshake()
-	errhandler.Handle(err)
 
 	// allow live plugins
 	//go plugins.Poll(p)
 
 	// listen for events on Discord
-	go dg.Listen()
+	// conn.Listen(s, c, log)
 
 	// enable the API, if applicable
 	if c.DisableApi {
 		log.Notice("API explicitly disabled.")
 	} else {
-		go api.Listen(c.ApiInterface, &dg, c, log)
+		go api.Listen(c.ApiInterface, s, c, log)
 	}
 
 	log.Noticef("Digo v%s Online", globals.VERSION)

@@ -1,18 +1,24 @@
 package errhandler
 
 import (
-	"fmt"
+	"github.com/op/go-logging"
 	"os"
 )
 
 /*
-	Stupid simple error handling
-	Probably could and should be more robust
+	Deprecated. Useless package
 */
+
+var log *logging.Logger
 
 func Handle(err error) {
 	if err != nil {
-		fmt.Printf("ERROR: %v\n", err)
+		log.Errorf("%v\n", err)
 		os.Exit(2)
 	}
+}
+
+func Init(logger *logging.Logger) {
+	// set the package var to the ref
+	log = logger
 }

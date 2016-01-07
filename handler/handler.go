@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
+	"github.com/sethdmoore/discordgo"
 	//"github.com/davecgh/go-spew/spew"
 	//"github.com/sethdmoore/digo/errhandler"
 	"github.com/op/go-logging"
@@ -37,7 +37,7 @@ func print_plugins() string {
 }
 
 func message_delete(s *discordgo.Session, chan_id string, m_id string) {
-	if c.RemoveTriggers {
+	if !c.KeepTriggers {
 		s.ChannelMessageDelete(chan_id, m_id)
 
 	}
@@ -68,9 +68,12 @@ func check_triggers(triggers []string, message string) (status int, msg_split []
 		}
 
 	}
+
+	// 0 is globals status uninitialized value
 	if status == 0 {
 		status = globals.NO_MATCH
 	}
+
 	return
 }
 
@@ -112,11 +115,16 @@ func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 		status, command = check_triggers(plugin.Triggers, m.Content)
 		if status == globals.MATCH {
 			message_delete(s, m.ChannelID, m.ID)
-			output, err := plugins.Exec(p.Directory, plugin_file, command[1:])
-			if err == nil {
-				s.ChannelMessageSend(m.ChannelID, string(output))
+			if plugin.Type == "simple" {
+				output, err := plugins.Exec(p.Directory, plugin_file, command[1:])
+				if err == nil {
+					s.ChannelMessageSend(m.ChannelID, string(output))
+				}
+				break
+
+			} else if plugin.Type == "json" {
+
 			}
-			break
 		} else if status == globals.HELP {
 			message_delete(s, m.ChannelID, m.ID)
 			output, err := plugins.Exec(p.Directory, plugin_file, []string{"help"})
@@ -128,7 +136,7 @@ func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 
 }
 
-func Message(s *discordgo.Session, m *types.Message) (int, error) {
+func Message(s *discordgo.Session, m *types.Message) error {
 	message := strings.Join(m.Payload, "\n")
 	var channels []string
 	var dchannels []discordgo.Channel
@@ -142,7 +150,7 @@ func Message(s *discordgo.Session, m *types.Message) (int, error) {
 		dchannels, err = s.GuildChannels(c.Guild)
 
 		if err != nil {
-			return globals.ERROR, err
+			return err
 		}
 		//errhandler.Handle(err)
 
@@ -158,7 +166,7 @@ func Message(s *discordgo.Session, m *types.Message) (int, error) {
 	for _, channel := range channels {
 		s.ChannelMessageSend(channel, message)
 	}
-	return globals.OK, nil
+	return nil
 }
 
 func Init(config *types.Config, plugins *types.Plugins, logger *logging.Logger) {
