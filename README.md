@@ -150,7 +150,7 @@ $ go build
 ```
 
 ## Todo
-- [x] restart / resume disconnected sessions without restarting Digo (sorry)
+- [x] restart / resume disconnected sessions without restarting Digo
 - [ ] hot registering / reloading when new plugins are added (without restart)
 - [ ] logging
 - [ ] allow triggering plugins from content of messages (regexp, instead of just /commands)
