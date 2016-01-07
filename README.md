@@ -21,23 +21,26 @@ export DIGO_DISABLE_API=false
 export DIGO_API_INTERFACE=127.0.0.1:8086
 export DIGO_API_USERNAME=mydigo
 export DIGO_API_PASSWORD=secretpass
+export DIGO_DISCORD_INVITE_ID=xuja8ije23
 export DIGO_TRIGGER=/bot
 export DIGO_LOG_LEVEL=info  # set to debug at your own risk
 ./digo
 ```
 
-setting             |   type    | default        |   description                                          | required
---------------------|-----------|-------------------------------------------------------------------------|---------
-DIGO_DISCORD_EMAIL  |  string   | xxxxxxx        | Bot's discord login email                              | yes
-DIGO_DISCORD_PASS   |  strirg   | xxxxxxx        | Bot's discord login pass                               | yes
-DIGO_SERVER_ID      |  string   | xxxxxxx        | Discord server ID (guild)                              | yes
-DIGO_DISABLE_API    |  boolean  | false          | Disable Digo API (default enabled)                     | No
-DIGO_API_INTERFACE  |  string   | 127.0.0.1:8086 | Interface API listens on                               | No
-DIGO_API_USERNAME   |  string   | <unset>        | Basic Auth username for the API                        | No
-DIGO_API_PASSWORD   |  string   | <unset>        | Basic auth password for the API. If unset, no auth.    | No
-DIGO_TRIGGER        |  string   | /bot           | Bot trigger for chat                                   | No
-DIGO_LEAVE_TRIGGERS |  boolean  | false          | Leave triggers in chat. Otherwise, triggers are deleted| No
-DIGO_LOG_LEVEL      |  string   | info           | Log level to show. (debug, notice, warn, error)        | No
+setting               |   type    | default        |   description                                          | required
+----------------------|-----------|----------------|--------------------------------------------------------|---------
+DIGO_DISCORD_EMAIL    |  string   | xxxxxxx        | Bot's discord login email                              | yes
+DIGO_DISCORD_PASS     |  strirg   | xxxxxxx        | Bot's discord login pass                               | yes
+DIGO_DISCORD_INVITE_ID|  string   | xxxxxxx        | Bot's invite code                                      | no
+DIGO_SERVER_ID        |  string   | xxxxxxx        | Discord server ID (guild)                              | yes
+DIGO_DISABLE_API      |  boolean  | false          | Disable Digo API (default enabled)                     | No
+DIGO_API_INTERFACE    |  string   | 127.0.0.1:8086 | Interface API listens on                               | No
+DIGO_API_USERNAME     |  string   | <unset>        | Basic Auth username for the API                        | No
+DIGO_API_PASSWORD     |  string   | <unset>        | Basic auth password for the API. If unset, no auth.    | No
+DIGO_TRIGGER          |  string   | /bot           | Bot trigger for chat                                   | No
+DIGO_LEAVE_TRIGGERS   |  boolean  | false          | Leave triggers in chat. Otherwise, triggers are deleted| No
+DIGO_LOG_LEVEL        |  string   | info           | Log level to show. (debug, notice, warn, error)        | No
+
 
 Digo only needs the following permissions from Discord:
 * Read Messages
@@ -147,8 +150,8 @@ $ go build
 ```
 
 ## Todo
-* restart / resume disconnected sessions without restarting Digo (sorry)
-* hot registering / reloading when new plugins are added (without restart)
-* logging
-* allow triggering plugins from content of messages (regexp, instead of just /commands)
-* Godeps
+- [x] restart / resume disconnected sessions without restarting Digo
+- [ ] hot registering / reloading when new plugins are added (without restart)
+- [ ] logging
+- [ ] allow triggering plugins from content of messages (regexp, instead of just /commands)
+- [ ] Godeps
