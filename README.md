@@ -54,8 +54,8 @@ Digo only needs the following permissions from Discord:
 
 ## Bot built-in commands
 This assumes you have not changed your DIGO_TRIGGER from /bot  
->/bot reload  # registers and unregisters plugins add / removed from the plugin directory  
->/bot plugins # lists all plugins installed and their triggers  
+>/bot reload    # registers and unregisters plugins added / removed from the plugin directory  
+>/bot plugins   # lists all plugins installed and their triggers  
 
 ## Plugins
 Plugins can be written in any language. If the shell can execute the program, Digo will be able to use execute it as well.

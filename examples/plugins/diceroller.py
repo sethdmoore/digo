@@ -104,9 +104,9 @@ def build_message(j):
 def print_help(msg, response):
     response["payload"] = []
     response["payload"].append("==Dice Roller Help==")
-    response["payload"].append("/roll  # rolls 1d6")
-    response["payload"].append("/roll 2d100  # rolls 2 d100s")
-    response["payload"].append("/roll 2d6 3d10")
+    response["payload"].append("/roll  (rolls 1d6)")
+    response["payload"].append("/roll 2d100  (rolls 2 d100's)")
+    response["payload"].append("/roll 2d6 3d10 (rolls 2d6's and 3d10's)")
     print json.dumps(response)
     sys.exit(0)
 
