@@ -95,13 +95,37 @@ The youtuber plugis arguments will be ["plugins/youtuber.py", "cool", "cat", "vi
 A simple plugins' stdout ends up in chat channel the trigger was called from after it exits.  
 Simple plugin stderr ends up in Digo's stdout (sorry).
 
-If the trigger is mentioned with no arguments, Digo assumes the user needs help, and will simply pass "help" to the arguments of the plugin. The plugin is free to ignore this in the case of plugins that have only one function.
+If the trigger is mentioned with no arguments, Digo simply runs the plugin with no arguments
 Example, in #general, Billy writes  
 >/yt  
 
-The youtuber plugin will respond with  
+The youtuber plugin could respond with  
 
 >Usage: /yt search keywords  
+
+#### JSON type plugin
+
+If a plugin registers its type as "json", Digo will treat the plugin differently in some regards. It still expects the plugin to dump its config when passed the argument "register", but this is where the similarity to simple-type plugins ends.
+
+When digo detects a trigger for a JSON plugin, it runs the plugin with the first argument as "json" and the second argument as stringified json.
+
+For instance, Billy writes
+/roll 6d12 3d6
+
+The diceroller plugin will receive arguments
+["./diceroller.py", "json", '{"user": "Billy", "channel": "012938521123", "arguments": ["6d12", "3d6"]}']
+
+
+Here is a table for the request JSON
+
+Field       | type     | description
+------------|----------|------------
+user        | string   | Username of person calling the trigger
+channel     | string   | Channel the trigger originated from
+arguments   | []string | All of the arguments passed to the trigger (/foo bar baz => ["bar", "baz"])
+
+
+The plugin should respond with a JSON blob to stdout in the same format the API route /v1/message takes
 
 #### Example Simple plugins included
 * [Youtube KeyWord Search](examples/plugins/youtuber.py)  
@@ -151,7 +175,7 @@ $ go build
 
 ## Todo
 - [x] restart / resume disconnected sessions without restarting Digo
-- [ ] hot registering / reloading when new plugins are added (without restart)
+- [x] hot registering / reloading when new plugins are added (without restart)
 - [ ] logging
 - [ ] allow triggering plugins from content of messages (regexp, instead of just /commands)
 - [ ] Godeps
