@@ -1,13 +1,5 @@
 package types
 
-type PluginResponse struct {
-	Plugin   string   `json:"plugin"`   // name of the plugin
-	Action   string   `json:"action"`   // currently only "ChannelMessageSend"
-	Channels []string `json:"channels"` // channel(s) to post the output to
-	Payload  []string `json:"payload"`  // message from the plugin
-	//Users    []string `json:"users"`	// users
-}
-
 type PluginMessage struct {
 	User      string   `json:"user"`      // user that called the trigger
 	Channel   string   `json:"channel"`   // channel trigger was called from

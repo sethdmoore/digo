@@ -5,7 +5,7 @@ import (
 	"github.com/sethdmoore/discordgo"
 	//"github.com/davecgh/go-spew/spew"
 	//"github.com/sethdmoore/digo/errhandler"
-	//"encoding/json"
+	"encoding/json"
 	"github.com/op/go-logging"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/plugins"
@@ -40,12 +40,24 @@ func print_plugins() string {
 func message_delete(s *discordgo.Session, chan_id string, m_id string) {
 	if !c.KeepTriggers {
 		s.ChannelMessageDelete(chan_id, m_id)
-
 	}
 }
 
-func handle_json_plugin(out []byte) {
-
+func handle_json_plugin(plugin_name string, stdout []byte, s *discordgo.Session) {
+	var plugin_response types.Message
+	var err error
+	err = json.Unmarshal(stdout, &plugin_response)
+	if err != nil {
+		log.Warning("Plugin \"%s\" did not reply with properly formatted json: %s", plugin_name, err)
+		return
+	}
+	err = Message(s, &plugin_response)
+	if err != nil {
+		log.Warning("Discord API returned an error: %s", err)
+		return
+	} else {
+		log.Debug("JSON plugin was successful")
+	}
 }
 
 func check_triggers(triggers []string, message string) (status int, msg_split []string) {
@@ -97,10 +109,15 @@ func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 	if status == globals.MATCH {
 		message_delete(s, m.ChannelID, m.ID)
 		switch {
-		case command[1] == "help":
-			s.ChannelMessageSend(m.ChannelID, print_help())
+		/*
+			case command[1] == "help":
+				s.ChannelMessageSend(m.ChannelID, print_help())
+		*/
 		case command[1] == "plugins":
 			s.ChannelMessageSend(m.ChannelID, print_plugins())
+		case command[1] == "reload":
+			plugins.Register()
+			s.ChannelMessageSend(m.ChannelID, "Digo Reloaded")
 		default:
 			s.ChannelMessageSend(m.ChannelID, print_plugins())
 		}
@@ -118,30 +135,39 @@ func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 
 	for plugin_file, plugin := range p.Plugins {
 		status, command = check_triggers(plugin.Triggers, m.Content)
-		if status == globals.MATCH {
+		if status == globals.MATCH && plugin.Type == "simple" {
 			message_delete(s, m.ChannelID, m.ID)
-			if plugin.Type == "simple" {
-				output, err := plugins.Exec(p.Directory, plugin_file, command[1:])
-				if err == nil {
-					s.ChannelMessageSend(m.ChannelID, string(output))
-				}
-				break
-
-			} else if plugin.Type == "json" {
-				var message types.PluginMessage
-				message.Arguments = command[1:]
-				message.User = m.Author.Username
-				message.Channel = m.ChannelID
-				/*
-					output, err := plugins.ExecJson(p.Directory, plugin_file, &m)
-					if err == nil {
-						handle_json_plugin(output)
-					}
-				*/
+			output, err := plugins.Exec(p.Directory, plugin_file, command[1:])
+			if err == nil {
+				s.ChannelMessageSend(m.ChannelID, string(output))
 			}
+			break
+
+		} else if (status == globals.MATCH || status == globals.HELP) && plugin.Type == "json" {
+			// always forward triggers to json plugins
+			message_delete(s, m.ChannelID, m.ID)
+
+			var message types.PluginMessage
+
+			if status == globals.MATCH {
+				message.Arguments = command[1:]
+			} else if status == globals.HELP {
+				message.Arguments = []string{}
+			}
+
+			message.User = m.Author.Username
+
+			message.Channel = m.ChannelID
+			output, err := plugins.ExecJson(p.Directory, plugin_file, &message)
+			if err == nil {
+				handle_json_plugin(plugin.Name, output, s)
+			} else {
+				log.Warning("Could not exec json plugin %s", plugin.Name)
+			}
+
 		} else if status == globals.HELP {
 			message_delete(s, m.ChannelID, m.ID)
-			output, err := plugins.Exec(p.Directory, plugin_file, []string{"help"})
+			output, err := plugins.Exec(p.Directory, plugin_file, []string{})
 			if err == nil {
 				s.ChannelMessageSend(m.ChannelID, string(output))
 			}

@@ -1,13 +1,18 @@
 # Digo
 A pluggable bot for your Discord server, written in Golang.
 
+## Notice
+Digo is in very active development. At this point, things shouldn't  
+drastically change, but they may.
+
 ## Features
-* a bot that runs easy-to-write plugins
-* exposes a simple API for long-running services and daemons.
-* cross platform (Linux, Mac, in theory, Windows?)
+* (Mostly) stable bot, with automatic rejoin / reconnect!
+* Runs any number of plugins, written in any language
+* Exposes a simple API for long-running services and daemons.
+* Cross platform (Linux, Mac, in theory, Windows?)
 
 ## Configuration
-Currently, Digo is configured through environment variables. Might support configuration files (TOML?) if anyone cares.  
+Currently, Digo is configured through environment variables. Might support configuration files (TOML?) in the future.  
 Your server ID (also known as Guild ID) can be [found here](https://support.discordapp.com/hc/en-us/articles/206346498)  
 Here is an example wrapper script.
 
@@ -35,8 +40,8 @@ DIGO_DISCORD_INVITE_ID|  string   | xxxxxxx        | Bot's invite code          
 DIGO_SERVER_ID        |  string   | xxxxxxx        | Discord server ID (guild)                              | yes
 DIGO_DISABLE_API      |  boolean  | false          | Disable Digo API (default enabled)                     | No
 DIGO_API_INTERFACE    |  string   | 127.0.0.1:8086 | Interface API listens on                               | No
-DIGO_API_USERNAME     |  string   | <unset>        | Basic Auth username for the API                        | No
-DIGO_API_PASSWORD     |  string   | <unset>        | Basic auth password for the API. If unset, no auth.    | No
+DIGO_API_USERNAME     |  string   | unset          | Basic Auth username for the API                        | No
+DIGO_API_PASSWORD     |  string   | unset          | Basic auth password for the API. If unset, no auth.    | No
 DIGO_TRIGGER          |  string   | /bot           | Bot trigger for chat                                   | No
 DIGO_LEAVE_TRIGGERS   |  boolean  | false          | Leave triggers in chat. Otherwise, triggers are deleted| No
 DIGO_LOG_LEVEL        |  string   | info           | Log level to show. (debug, notice, warn, error)        | No

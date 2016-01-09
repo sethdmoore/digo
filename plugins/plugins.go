@@ -132,11 +132,22 @@ func Exec(dir string, command string, arguments []string) (output []byte, err er
 	return output, err
 }
 
-func ExecJson(dir string, command string, arguments *types.PluginMessage) {
-	/*
-		path := filepath.FromSlash(dir + "/" + command)
-		cmd := exec.Command(path, z)
-	*/
+func ExecJson(dir string, command string, arguments *types.PluginMessage) ([]byte, error) {
+	path := filepath.FromSlash(dir + "/" + command)
+	var err error
+	var blob []byte
+
+	blob, err = json.Marshal(arguments)
+
+	cmd := exec.Command(path, "json", string(blob))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Warningf("%s\n", err)
+		log.Debugf("%s\n", output)
+		return []byte{}, err
+	}
+	log.Debugf("%v", string(output))
+	return output, err
 }
 
 func Init(logger *logging.Logger) *types.Plugins {
