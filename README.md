@@ -143,6 +143,9 @@ The plugin should respond with a JSON blob to stdout in the same format the API 
 * [Urban Dictionary Search](examples/plugins/urbaner.py)  
 * [Random Insult Generator](examples/plugins/insulter.py) - [Original Source](https://gist.github.com/quandyfactory/258915)
 
+#### Example JSON plugins included
+* [Dice Roller](examples/plugins/diceroller.py)
+
 #### Example Services included
 * [Twitter Stalker](examples/services)
 
