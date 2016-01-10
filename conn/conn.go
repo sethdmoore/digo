@@ -80,6 +80,7 @@ func DoLogin(s *discordgo.Session) error {
 		}
 	} else {
 		log.Errorf("Can't log in: %s", err)
+		log.Error("Maybe your credentials are invalid?")
 	}
 
 	// since we're dealing with a ref, only return the error
