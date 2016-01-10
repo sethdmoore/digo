@@ -116,11 +116,6 @@ func Init(c *types.Config) *logging.Logger {
 
 	switch {
 	case use_stdout && use_logfile:
-		fmt.Println("yess")
-		fmt.Println("yess")
-		fmt.Println("yess")
-		fmt.Println("yess")
-		fmt.Println("yess")
 		logging.SetBackend(stdout_backend_leveled, logfile_backend_leveled)
 	case use_stdout:
 		logging.SetBackend(stdout_backend_leveled)
