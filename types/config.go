@@ -3,15 +3,18 @@ package types
 /*
 	Email           digo login email
 	Password        digo login password
+	InviteId     	discord invite code to auto accept
 	Trigger         /trigger for internal bot commands
+	KeepTriggers    Whether to remove triggers from chat or not
+	DisableApi   	Disable the API?
 	ApiInterface    interface API listens on, like "127.0.0.1:8080", ":80", and "0.0.0.0:1009"
 	ApiUsername     Basic Auth username for API
 	ApiPassword     Basic Auth password for API
-	RemoveTriggers  Remove all plugin / bot triggers from chat
 	Guild           server to connect to
 	LogDir          log directory
 	LogFile         log file
 	LogStreams      log streams, comma delim. Valid options: "stdout,file"
+	LogLevel        debug, info, notice, warning, error, critical
 	UserID          Non configurable, set in main.go by discord API
 */
 

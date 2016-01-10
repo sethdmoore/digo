@@ -161,8 +161,6 @@ func Init(conf *types.Config, logger *logging.Logger) *discordgo.Session {
 	c = conf
 	log = logger
 
-	log.Debugf("%s, %s", c.Email, c.Password)
-
 	log.Debug("Registering message handler")
 	// type discordgo.Session (not a ref)
 	session = discordgo.Session{
