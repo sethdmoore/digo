@@ -76,7 +76,6 @@ func DoLogin(s *discordgo.Session) error {
 	if err == nil {
 		if token != "" {
 			s.Token = token
-
 		}
 	} else {
 		log.Errorf("Can't log in: %s", err)
@@ -170,7 +169,7 @@ func Init(conf *types.Config, logger *logging.Logger) *discordgo.Session {
 
 	go LoginFlow(&session)
 
-	time.Sleep(1.0)
+	time.Sleep(1.0 * time.Second)
 	for {
 		if session.Token != "" {
 			break
