@@ -170,7 +170,7 @@ func Init(conf *types.Config, logger *logging.Logger) *discordgo.Session {
 
 	go LoginFlow(&session)
 
-	time.Sleep(1.0)
+	time.Sleep(1 * time.Second)
 	for {
 		if session.Token != "" {
 			break
