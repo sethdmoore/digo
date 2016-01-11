@@ -76,7 +76,6 @@ func DoLogin(s *discordgo.Session) error {
 	if err == nil {
 		if token != "" {
 			s.Token = token
-
 		}
 	} else {
 		log.Errorf("Can't log in: %s", err)

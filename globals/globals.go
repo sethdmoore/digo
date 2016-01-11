@@ -1,6 +1,6 @@
 package globals
 
-const VERSION = "0.4.1"
+const VERSION = "0.4.2"
 const APP_NAME = "Digo"
 const CONFIG_NAME = "config.toml"
 
