@@ -1,0 +1,54 @@
+{
+	"ImportPath": "github.com/sethdmoore/digo",
+	"GoVersion": "go1.5",
+	"Deps": [
+		{
+			"ImportPath": "github.com/bwmarrin/discordgo",
+			"Comment": "v0.7.0-122-g1fc37b8",
+			"Rev": "1fc37b8e32e25ba1d1dbf86b01f18d52438c90bd"
+		},
+		{
+			"ImportPath": "github.com/gin-gonic/gin",
+			"Comment": "v1.0rc1-128-gfc5e355",
+			"Rev": "fc5e3557242901e24016d4474168515434871dd5"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "3986be78bf859e01f01af631ad76da5b269d270c"
+		},
+		{
+			"ImportPath": "github.com/kelseyhightower/envconfig",
+			"Comment": "v1.0.0-26-g12c18e8",
+			"Rev": "12c18e8343f6eb5fc3a9d5c8dc353e42e6bb40b9"
+		},
+		{
+			"ImportPath": "github.com/manucorporat/sse",
+			"Rev": "c142f0f1baea5cef7f98a8a6c222f6134368c1f5"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-colorable",
+			"Rev": "40e4aedc8fabf8c23e040057540867186712faa5"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-isatty",
+			"Rev": "56b76bdf51f7708750eac80fa38b952bb9f32639"
+		},
+		{
+			"ImportPath": "github.com/op/go-logging",
+			"Rev": "dfaf3dff9b631bc4236201d90d41ee0de9202889"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "d9558e5c97f85372afee28cf2b6059d7d3818919"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "833a04a10549a95dc34458c195cbad61bbb6cb4d"
+		},
+		{
+			"ImportPath": "gopkg.in/bluesuncorp/validator.v5",
+			"Comment": "v5.10",
+			"Rev": "d2748d5ae5e5af5ec3a85e3a59bf0db9d741c82d"
+		}
+	]
+}

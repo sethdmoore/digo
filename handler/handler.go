@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"github.com/sethdmoore/discordgo"
+	"github.com/bwmarrin/discordgo"
 	//"github.com/davecgh/go-spew/spew"
 	//"github.com/sethdmoore/digo/errhandler"
 	"encoding/json"
@@ -94,7 +94,7 @@ func check_triggers(triggers []string, message string) (status int, msg_split []
 	return
 }
 
-func MessageHandler(s *discordgo.Session, m discordgo.Message) {
+func MessageHandler(s *discordgo.Session, m *discordgo.Message) {
 	var status int
 	var command []string
 	log.Infof("%s %s > %s", m.ChannelID, m.Author.Username, m.Content)
@@ -179,7 +179,7 @@ func MessageHandler(s *discordgo.Session, m discordgo.Message) {
 func Message(s *discordgo.Session, m *types.Message) error {
 	message := strings.Join(m.Payload, "\n")
 	var channels []string
-	var dchannels []discordgo.Channel
+	var dchannels []*discordgo.Channel
 	var err error
 
 	if m.Prefix != "" {

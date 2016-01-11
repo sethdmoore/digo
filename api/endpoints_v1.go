@@ -3,11 +3,11 @@ package api
 import (
 	"fmt"
 	//"github.com/bwmarrin/discordgo"
+	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/handler"
 	"github.com/sethdmoore/digo/types"
-	"github.com/sethdmoore/discordgo"
 )
 
 /*
@@ -35,7 +35,7 @@ func register_plugin_v1(c *gin.Context) {
 func channels_v1(c *gin.Context) {
 	// this route is expensive since it's doing live fetching of channel information
 	// expensive as in ~100ms
-	var ch []discordgo.Channel
+	var ch []*discordgo.Channel
 	var err error
 	ch, err = session.GuildChannels(config.Guild)
 	if err != nil {

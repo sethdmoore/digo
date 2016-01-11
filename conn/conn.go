@@ -5,7 +5,7 @@ package conn
 */
 
 import (
-	"github.com/sethdmoore/discordgo"
+	"github.com/bwmarrin/discordgo"
 	//"github.com/davecgh/go-spew/spew"
 	"github.com/op/go-logging"
 	"github.com/sethdmoore/digo/handler"
@@ -21,7 +21,7 @@ func poll_conn(s *discordgo.Session) {
 	for {
 		time.Sleep(10 * time.Second)
 		found := false
-		guilds, err := s.UserGuilds("@me")
+		guilds, err := s.UserGuilds()
 		for _, g := range guilds {
 			if g.ID == c.Guild {
 				found = true

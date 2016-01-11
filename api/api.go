@@ -1,10 +1,10 @@
 package api
 
 import (
+	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
 	"github.com/sethdmoore/digo/types"
-	"github.com/sethdmoore/discordgo"
 	"time"
 )
 
