@@ -2,7 +2,7 @@ package globals
 
 // for checking triggers
 const (
-	_ = iota // index starts at 0 (unintialized)
+	_ = iota // index starts at 0 (uninitialized)
 	MATCH
 	NO_MATCH
 	HELP
