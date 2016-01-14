@@ -6,6 +6,7 @@ import (
 	"fmt"
 	//"github.com/davecgh/go-spew/spew"
 	"github.com/op/go-logging"
+	"github.com/sethdmoore/digo/config"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/types"
 	"io/ioutil"
@@ -61,31 +62,59 @@ loop:
 	return
 }
 
-func register_plugin(dir string, file string) (p *types.Plugin, err error) {
+func register_plugin(dir string, file string) (plugin *types.Plugin, err error) {
+	c := config.Get()
 	// register string is hardcoded, always the first argument
 	config, err := Exec(dir, file, []string{"register"})
-	err = json.Unmarshal(config, &p)
+	err = json.Unmarshal(config, &plugin)
 	if err != nil {
 		err = errors.New(fmt.Sprintf("Couldn't run \"%s register\"\n", file))
 		log.Errorf("%s\n", err)
 		log.Debugf("%s\n", config)
-		return p, err
+		return
 	}
 	// default to simple type plugin
-	if p.Type == "" {
-		p.Type = "simple"
+	if plugin.Type == "" {
+		plugin.Type = "simple"
 	}
 
-	if p.Type == "simple" {
-		log.Debugf("Simple plugin %s registered", p.Name)
-	} else if p.Type == "json" {
-		log.Debug("JSON plugin %s  registered", p.Name)
+	if plugin.Filename == "" {
+		plugin.Filename = file
+	}
+
+	// input validation
+	if len(plugin.Triggers) == 0 && len(plugin.Tokens) == 0 {
+		err = errors.New(fmt.Sprintf("Plugin \"%s\" does nothing! It has no triggers or tokens. Not registering.", file))
+		return
+	}
+
+	if plugin.Type == "simple" {
+		log.Debugf("Simple plugin %s registered", plugin.Name)
+	} else if plugin.Type == "json" {
+		log.Debug("JSON plugin %s registered", plugin.Name)
 	} else {
-		log.Warningf("Plugin of unknown type registered: %s", p.Type)
+		log.Warningf("Plugin of unknown type registered: %s", plugin.Type)
 		log.Warning("Valid types: simple, json")
+		err = errors.New("Unknown plugin type")
+		return
+	}
+
+	// trigger cache so we only have to iterate one set per message
+	for _, trigger := range plugin.Triggers {
+		// sorry, can't override /bot
+		if trigger == c.Trigger {
+			log.Info("Prevented plugin %s from trying to override bot trigger %s.", plugin.Name, c.Trigger)
+			continue
+		}
+		p.AllTriggers[trigger] = file
+	}
+
+	// token cache so we only have to iterate one set per message
+	for _, token := range plugin.Tokens {
+		p.AllTokens[token] = file
 	}
 	//spew.Dump(config)
-	return p, err
+	return
 }
 
 func Register() (found bool) {
@@ -93,6 +122,12 @@ func Register() (found bool) {
 	var enabled_plugins []string
 	var plugin *types.Plugin
 	var err error
+	c := config.Get()
+
+	// build top level trigger cache
+	p.AllTriggers = map[string]string{
+		c.Trigger: "__internal",
+	}
 
 	p.Directory, plugin_files, err = search_plugin_dir()
 	log.Debug("Potential plugins: %v\n", plugin_files)
@@ -151,7 +186,9 @@ func ExecJson(dir string, command string, arguments *types.PluginMessage) ([]byt
 }
 
 func Init(logger *logging.Logger) *types.Plugins {
+	//c := config.Get()
 	p.Plugins = make(map[string]*types.Plugin)
+
 	log = logger
 
 	success := Register()

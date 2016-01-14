@@ -10,8 +10,9 @@ import (
 	"strings"
 )
 
-func Init() *types.Config {
-	var c types.Config
+var c types.Config
+
+func Init() {
 	prefix := strings.ToUpper(globals.APP_NAME)
 	err := envconfig.Process(prefix, &c)
 
@@ -57,5 +58,8 @@ func Init() *types.Config {
 	}
 
 	//spew.Dump(c)
+}
+
+func Get() *types.Config {
 	return &c
 }

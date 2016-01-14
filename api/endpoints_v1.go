@@ -5,6 +5,7 @@ import (
 	//"github.com/bwmarrin/discordgo"
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
+	"github.com/sethdmoore/digo/config"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/handler"
 	"github.com/sethdmoore/digo/types"
@@ -37,6 +38,7 @@ func channels_v1(c *gin.Context) {
 	// expensive as in ~100ms
 	var ch []*discordgo.Channel
 	var err error
+	config := config.Get()
 	ch, err = session.GuildChannels(config.Guild)
 	if err != nil {
 		c.JSON(500, gin.H{

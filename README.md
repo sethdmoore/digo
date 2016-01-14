@@ -190,9 +190,10 @@ $ go build
 ```
 
 ## Todo
-- [x] restart / resume disconnected sessions without restarting Digo
-- [x] hot registering / reloading when new plugins are added (without restart)
-- [x] logging
+- [x] Restart / resume disconnected sessions without restarting Digo
+- [x] Hot registering / reloading when new plugins are added (without restart)
+- [x] Logging
 - [x] Godeps
 - [x] Upgrade bwmarrin/discordgo Develop branch
-- [ ] allow triggering plugins from content of messages (regexp, instead of just /commands)
+- [ ] Support Windows plugins by invoking interpreter directly (os/exec)
+- [ ] Allow triggering plugins from content of messages (regexp, instead of just /commands)

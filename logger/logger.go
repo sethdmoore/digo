@@ -8,6 +8,7 @@ package logger
 import (
 	"fmt"
 	"github.com/op/go-logging"
+	"github.com/sethdmoore/digo/config"
 	"github.com/sethdmoore/digo/types"
 	"os"
 	"strings"
@@ -51,11 +52,12 @@ func open_logfile(log_location string) (*os.File, bool) {
 	}
 }
 
-func Init(c *types.Config) *logging.Logger {
+func Init() *logging.Logger {
 	var log = logging.MustGetLogger("Digo")
 	var llevel logging.Level
 	var use_stdout bool
 	var use_logfile bool
+	c := config.Get()
 
 	// scoping made this a requirement //
 	var logfile_backend *logging.LogBackend

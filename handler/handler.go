@@ -7,6 +7,7 @@ import (
 	//"github.com/sethdmoore/digo/errhandler"
 	"encoding/json"
 	"github.com/op/go-logging"
+	"github.com/sethdmoore/digo/config"
 	"github.com/sethdmoore/digo/globals"
 	"github.com/sethdmoore/digo/plugins"
 	"github.com/sethdmoore/digo/types"
@@ -15,16 +16,10 @@ import (
 
 // need to package scope this
 // as there's no obvious way to pass other params to MessageHandler
-var c *types.Config
 var p *types.Plugins
 var log *logging.Logger
 
 func print_help() string {
-	s := "This would print help"
-	return s
-}
-
-func print_plugins() string {
 	var output []string
 	output = append(output, fmt.Sprintf("**%s plugins** - /bot plugins", globals.APP_NAME))
 	output = append(output, "---------------------------------------")
@@ -38,6 +33,7 @@ func print_plugins() string {
 }
 
 func message_delete(s *discordgo.Session, chan_id string, m_id string) {
+	c := config.Get()
 	if !c.KeepTriggers {
 		s.ChannelMessageDelete(chan_id, m_id)
 	}
@@ -60,30 +56,24 @@ func handle_json_plugin(plugin_name string, stdout []byte, s *discordgo.Session)
 	}
 }
 
-func check_triggers(triggers []string, message string) (status int, msg_split []string) {
+func check_trigger(trigger string, message string) (status int, msg_split []string) {
 	msg_split = strings.Split(message, " ")
 
 	// filter down to just the trigger
 	msg_trigger := msg_split[0]
 
-	for _, trigger := range triggers {
-		// if the length of the content is greater than the trigger
-		// and the slice of the message to the length of the trigger is the trigger...
-		if len(message) > len(trigger) && msg_trigger == trigger {
-			status = globals.MATCH
-			break
-			// if the length of the content is the size of the trigger, and the message is the trigger
-		} else if len(msg_split) == 1 && msg_trigger == trigger {
-			status = globals.HELP
-			break
-		} else if len(msg_split) == 2 && msg_split[1] == "" && msg_trigger == trigger {
-			// edge case where strings.Split returns 2 element slice
-			// where the second element is the token used to split
-			// but it's an empty string
-			status = globals.HELP
-			break
-		}
-
+	// if the length of the content is greater than the trigger
+	// and the slice of the message to the length of the trigger is the trigger...
+	if len(message) > len(trigger) && msg_trigger == trigger {
+		status = globals.MATCH
+		// if the length of the content is the size of the trigger, and the message is the trigger
+	} else if len(msg_split) == 1 && msg_trigger == trigger {
+		status = globals.HELP
+	} else if len(msg_split) == 2 && msg_split[1] == "" && msg_trigger == trigger {
+		// edge case where strings.Split returns 2 element slice
+		// where the second element is the token used to split
+		// but it's an empty string
+		status = globals.HELP
 	}
 
 	// 0 is globals status uninitialized value
@@ -94,9 +84,76 @@ func check_triggers(triggers []string, message string) (status int, msg_split []
 	return
 }
 
+func handleInternalCommand(status int, command []string, s *discordgo.Session, m *discordgo.Message) (handled bool) {
+	if status == globals.MATCH || status == globals.HELP {
+		message_delete(s, m.ChannelID, m.ID)
+		handled = true
+	}
+	if status == globals.MATCH {
+		switch {
+		case command[1] == "plugins":
+			s.ChannelMessageSend(m.ChannelID, print_help())
+		case command[1] == "reload":
+			plugins.Register()
+			s.ChannelMessageSend(m.ChannelID, "Digo Reloaded")
+		default:
+			s.ChannelMessageSend(m.ChannelID, print_help())
+		}
+	} else if status == globals.HELP {
+		s.ChannelMessageSend(m.ChannelID, print_help())
+	}
+	return
+}
+
+func handleExternalCommand(status int, command []string, plugin_dir string, plugin *types.Plugin, s *discordgo.Session, m *discordgo.Message) (handled bool) {
+	//s := conn.Get()
+	// always send the event to message_delete
+	if status == globals.MATCH || status == globals.HELP {
+		message_delete(s, m.ChannelID, m.ID)
+		handled = true
+	}
+
+	if status == globals.MATCH && plugin.Type == "simple" {
+		output, err := plugins.Exec(plugin_dir, plugin.Filename, command[1:])
+		if err == nil {
+			s.ChannelMessageSend(m.ChannelID, string(output))
+		}
+
+	} else if (status == globals.MATCH || status == globals.HELP) && plugin.Type == "json" {
+		var message types.PluginMessage
+
+		if status == globals.MATCH {
+			message.Arguments = command[1:]
+		} else if status == globals.HELP {
+			message.Arguments = []string{}
+		}
+
+		message.User = m.Author.Username
+
+		message.Channel = m.ChannelID
+		output, err := plugins.ExecJson(plugin_dir, plugin.Filename, &message)
+		if err == nil {
+			handle_json_plugin(plugin.Name, output, s)
+		} else {
+			log.Warning("Could not exec json plugin %s", plugin.Name)
+		}
+
+	} else if status == globals.HELP {
+		output, err := plugins.Exec(plugin_dir, plugin.Filename, []string{})
+		if err == nil {
+			s.ChannelMessageSend(m.ChannelID, string(output))
+		}
+
+	}
+	return
+}
+
 func MessageHandler(s *discordgo.Session, m *discordgo.Message) {
 	var status int
 	var command []string
+	var handled bool
+	c := config.Get()
+
 	log.Infof("%s %s > %s", m.ChannelID, m.Author.Username, m.Content)
 
 	// prevent the bot from triggering itself
@@ -104,76 +161,29 @@ func MessageHandler(s *discordgo.Session, m *discordgo.Message) {
 		return
 	}
 
-	// the /bot (or whatever) trigger alwqys has precedence
-	status, command = check_triggers([]string{c.Trigger}, m.Content)
-	if status == globals.MATCH {
-		message_delete(s, m.ChannelID, m.ID)
-		switch {
-		/*
-			case command[1] == "help":
-				s.ChannelMessageSend(m.ChannelID, print_help())
-		*/
-		case command[1] == "plugins":
-			s.ChannelMessageSend(m.ChannelID, print_plugins())
-		case command[1] == "reload":
-			plugins.Register()
-			s.ChannelMessageSend(m.ChannelID, "Digo Reloaded")
-		default:
-			s.ChannelMessageSend(m.ChannelID, print_plugins())
-		}
-		return
-	} else if status == globals.HELP {
-		message_delete(s, m.ChannelID, m.ID)
-		s.ChannelMessageSend(m.ChannelID, print_plugins())
+	// the /bot (or whatever) trigger always has precedence
+	status, command = check_trigger(c.Trigger, m.Content)
+
+	handled = handleInternalCommand(status, command, s, m)
+	if handled {
 		return
 	}
 
 	// clean up the command
-	if status != globals.NO_MATCH {
-		message_delete(s, m.ChannelID, m.ID)
-	}
+	// if status != globals.NO_MATCH {
+	// }
 
-	for plugin_file, plugin := range p.Plugins {
-		status, command = check_triggers(plugin.Triggers, m.Content)
-		if status == globals.MATCH && plugin.Type == "simple" {
-			message_delete(s, m.ChannelID, m.ID)
-			output, err := plugins.Exec(p.Directory, plugin_file, command[1:])
-			if err == nil {
-				s.ChannelMessageSend(m.ChannelID, string(output))
-			}
-			break
+	for trigger, plugin_file := range p.AllTriggers {
+		// grab the correct plugin from the Plugins struct
+		plugin := p.Plugins[plugin_file]
 
-		} else if (status == globals.MATCH || status == globals.HELP) && plugin.Type == "json" {
-			// always forward triggers to json plugins
-			message_delete(s, m.ChannelID, m.ID)
-
-			var message types.PluginMessage
-
-			if status == globals.MATCH {
-				message.Arguments = command[1:]
-			} else if status == globals.HELP {
-				message.Arguments = []string{}
-			}
-
-			message.User = m.Author.Username
-
-			message.Channel = m.ChannelID
-			output, err := plugins.ExecJson(p.Directory, plugin_file, &message)
-			if err == nil {
-				handle_json_plugin(plugin.Name, output, s)
-			} else {
-				log.Warning("Could not exec json plugin %s", plugin.Name)
-			}
-
-		} else if status == globals.HELP {
-			message_delete(s, m.ChannelID, m.ID)
-			output, err := plugins.Exec(p.Directory, plugin_file, []string{})
-			if err == nil {
-				s.ChannelMessageSend(m.ChannelID, string(output))
-			}
+		status, command = check_trigger(trigger, m.Content)
+		handled = handleExternalCommand(status, command, p.Directory, plugin, s, m)
+		if handled {
+			return
 		}
-	}
 
+	}
 }
 
 func Message(s *discordgo.Session, m *types.Message) error {
@@ -181,6 +191,7 @@ func Message(s *discordgo.Session, m *types.Message) error {
 	var channels []string
 	var dchannels []*discordgo.Channel
 	var err error
+	c := config.Get()
 
 	if m.Prefix != "" {
 		message = fmt.Sprintf("%s: %s", m.Prefix, message)
@@ -209,9 +220,8 @@ func Message(s *discordgo.Session, m *types.Message) error {
 	return nil
 }
 
-func Init(config *types.Config, plugins *types.Plugins, logger *logging.Logger) {
+func Init(plugins *types.Plugins, logger *logging.Logger) {
 	// set the config pointer
-	c = config
 	p = plugins
 	log = logger
 }

@@ -8,16 +8,16 @@ import (
 	"github.com/bwmarrin/discordgo"
 	//"github.com/davecgh/go-spew/spew"
 	"github.com/op/go-logging"
+	"github.com/sethdmoore/digo/config"
 	"github.com/sethdmoore/digo/handler"
-	"github.com/sethdmoore/digo/types"
 	"time"
 )
 
 var log *logging.Logger
-var c *types.Config
 var session discordgo.Session
 
 func poll_conn(s *discordgo.Session) {
+	c := config.Get()
 	for {
 		time.Sleep(10 * time.Second)
 		found := false
@@ -50,6 +50,7 @@ func poll_conn(s *discordgo.Session) {
 
 func accept_invite(s *discordgo.Session) error {
 	var err error
+	c := config.Get()
 	//time.Sleep(1 * time.Second)
 	if c.InviteId != "" {
 		log.Debugf("Attempting to accept invite: %s", c.InviteId)
@@ -71,6 +72,7 @@ func dgo_listen(s *discordgo.Session) error {
 func DoLogin(s *discordgo.Session) error {
 	var err error
 	var token string
+	c := config.Get()
 	log.Debug("Logging in")
 	token, err = s.Login(c.Email, c.Password)
 	if err == nil {
@@ -150,15 +152,14 @@ func DoWsHandshake(dg *discordgo.Session) error {
 	return err
 }
 
-// init could probably handle this. Don't know if there's a use-case for this
-func FetchSession() *discordgo.Session {
+// instead of passing package vars around..
+func Get() *discordgo.Session {
 	return &session
 }
 
-func Init(conf *types.Config, logger *logging.Logger) *discordgo.Session {
+func Init(logger *logging.Logger) *discordgo.Session {
 	//var err error
 	// set the config reference
-	c = conf
 	log = logger
 
 	log.Debug("Registering message handler")

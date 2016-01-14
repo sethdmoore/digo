@@ -12,23 +12,19 @@ import (
 	"github.com/sethdmoore/digo/handler"
 	"github.com/sethdmoore/digo/logger"
 	"github.com/sethdmoore/digo/plugins"
-	"github.com/sethdmoore/digo/types"
 )
 
 func main() {
 	var err error
 
-	//var p *plugins.Plugins
-	var c *types.Config
-
 	//p = plugins.Init()
 	lock := make(chan int)
 
 	// set up the config struct
-	c = config.Init()
+	config.Init()
 
 	// set the log reference to pass around
-	log := logger.Init(c)
+	log := logger.Init()
 	errhandler.Init(log)
 
 	// set up the plugins struct
@@ -36,19 +32,18 @@ func main() {
 	//log.Notice()
 
 	// handler takes reference to config and plugins structs
-	handler.Init(c, p, log)
+	handler.Init(p, log)
 
 	// login / websocket flow
-	s := conn.Init(c, log)
+	s := conn.Init(log)
 
 	// determine the bot's userID
 	user, err := s.User("@me")
 	errhandler.Handle(err)
 
-	c.UserID = user.ID
+	c := config.Get()
 
-	// allow live plugins
-	//go plugins.Poll(p)
+	c.UserID = user.ID
 
 	// listen for events on Discord
 	// conn.Listen(s, c, log)
@@ -57,7 +52,7 @@ func main() {
 	if c.DisableApi {
 		log.Notice("API explicitly disabled.")
 	} else {
-		go api.Listen(c.ApiInterface, s, c, log)
+		go api.Listen(c.ApiInterface, s, log)
 	}
 
 	log.Noticef("Digo v%s Online", globals.VERSION)

@@ -4,13 +4,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
-	"github.com/sethdmoore/digo/types"
+	"github.com/sethdmoore/digo/config"
 	"time"
 )
 
 // package scoped so we don't have to pass them around
 var session *discordgo.Session
-var config *types.Config
 var log *logging.Logger
 
 func api_log(c *gin.Context) {
@@ -36,11 +35,11 @@ func loggerino() gin.HandlerFunc {
 	return api_log
 }
 
-func Listen(iface string, s *discordgo.Session, c *types.Config, logger *logging.Logger) {
+func Listen(iface string, s *discordgo.Session, logger *logging.Logger) {
 	// set the refs to point to main
 	var v1 *gin.RouterGroup
 	session = s
-	config = c
+	c := config.Get()
 	log = logger
 
 	if c.LogLevel != "debug" {
