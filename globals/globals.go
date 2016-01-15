@@ -1,7 +1,7 @@
 package globals
 
 // Version of the app
-const Version = "0.5.0"
+const Version = "0.6.0"
 
 // AppName of bot
 const AppName = "Digo"
