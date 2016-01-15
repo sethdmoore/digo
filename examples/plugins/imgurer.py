@@ -31,7 +31,7 @@ def no_results(args):
 
 
 def fetch_conf():
-    conf_file = os.path.join(os.path.dirname(__file__), "_imgurer.conf")
+    conf_file = os.path.join(os.path.dirname(__file__), "_imgurer.json")
     with open(conf_file, "r") as f:
         try:
             conf = json.load(f)

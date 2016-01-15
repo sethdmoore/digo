@@ -25,7 +25,7 @@ def print_help():
 
 
 def fetch_key():
-    conf_file = os.path.join(os.path.dirname(__file__), "_youtuber.conf")
+    conf_file = os.path.join(os.path.dirname(__file__), "_youtuber.json")
     with open(conf_file, "r") as f:
         try:
             conf = json.load(f)

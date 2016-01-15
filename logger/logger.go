@@ -33,10 +33,10 @@ func openLogfile(logLocation string) (*os.File, bool) {
 	var err error
 	_, err = os.Stat(logLocation)
 	if err != nil {
-		fmt.Printf("WARN: log file could not be read: %s\n", err)
+		fmt.Printf("WARN: log file could not be read: %v\n", err)
 		f, err = os.Create(logLocation)
 		if err != nil {
-			fmt.Printf("WARN: could not create log file: %s\n", err)
+			fmt.Printf("WARN: could not create log file: %v\n", err)
 			return nil, false
 		}
 
@@ -47,8 +47,8 @@ func openLogfile(logLocation string) (*os.File, bool) {
 	}
 
 	f, err = os.OpenFile(logLocation, os.SEEK_END, os.ModeAppend)
-	if err == nil {
-		fmt.Printf("Could not open log file for writing: %s\n", err)
+	if err != nil {
+		fmt.Printf("Could not open log file for writing: %v\n", err)
 		return nil, false
 	}
 	return f, true

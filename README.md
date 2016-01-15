@@ -199,3 +199,5 @@ $ go build
 - [ ] Support Windows plugins by invoking interpreter directly (os/exec)
 - [ ] Allow triggering plugins from content of messages (regexp, instead of just /commands)
 - [ ] Configurable plugin paths
+- [ ] Poll "DataReady" and "Ready" structs so we can reconnect on socket close (instead of panic)
+- [ ] git submodule examples/
