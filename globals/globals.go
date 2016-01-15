@@ -1,9 +1,16 @@
 package globals
 
-const VERSION = "0.5.0"
-const APP_NAME = "Digo"
-const CONFIG_NAME = "config.toml"
+// Version of the app
+const Version = "0.5.0"
 
-var CONFIG_PATHS = [...]string{"/etc/digo", "/opt/digo"}
+// AppName of bot
+const AppName = "Digo"
 
-var PLUGIN_PATHS = [...]string{"/opt/digo/plugins", "/usr/local/digo/plugins", "plugins"}
+// ConfigName is unused
+const ConfigName = "config.toml"
+
+// ConfigPaths are not used
+var ConfigPaths = [...]string{"/etc/digo", "/opt/digo"}
+
+// PluginPaths to search for plugin dir
+var PluginPaths = [...]string{"/opt/digo/plugins", "/usr/local/digo/plugins", "plugins"}

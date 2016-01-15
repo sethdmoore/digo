@@ -12,7 +12,7 @@ import (
 var session *discordgo.Session
 var log *logging.Logger
 
-func api_log(c *gin.Context) {
+func apiLog(c *gin.Context) {
 	start := time.Now()
 	path := c.Request.URL.Path
 	// before request
@@ -32,9 +32,10 @@ func api_log(c *gin.Context) {
 }
 
 func loggerino() gin.HandlerFunc {
-	return api_log
+	return apiLog
 }
 
+// Listen Tells Gin API to start
 func Listen(iface string, s *discordgo.Session, logger *logging.Logger) {
 	// set the refs to point to main
 	var v1 *gin.RouterGroup
@@ -52,10 +53,10 @@ func Listen(iface string, s *discordgo.Session, logger *logging.Logger) {
 	r.Use(loggerino())
 	r.Use(gin.Recovery())
 
-	if c.ApiPassword != "" {
+	if c.APIPassword != "" {
 		log.Info("Basic Authentication enabled for API")
 		v1 = r.Group("/v1", gin.BasicAuth(gin.Accounts{
-			c.ApiUsername: c.ApiPassword,
+			c.APIUsername: c.APIPassword,
 		}))
 	} else {
 		log.Warning("DIGO_API_PASSWORD and DIGO_API_USERNAME are not set")
@@ -63,11 +64,10 @@ func Listen(iface string, s *discordgo.Session, logger *logging.Logger) {
 		v1 = r.Group("/v1")
 	}
 
-	v1.GET("/version", version_v1)
-	v1.GET("/channels", channels_v1)
-	//v1.POST("/register/:plugin", register_plugin_v1)
-	v1.POST("/message", message_v1)
+	v1.GET("/version", versionV1)
+	v1.GET("/channels", channelsV1)
+	v1.POST("/message", messageV1)
 
 	go r.Run(iface)
-	log.Noticef("Digo API is listening on %s", c.ApiInterface)
+	log.Noticef("Digo API is listening on %s", c.APIInterface)
 }

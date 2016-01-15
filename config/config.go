@@ -12,8 +12,9 @@ import (
 
 var c types.Config
 
+// Init config struct with kelseyhightower's envconfig
 func Init() {
-	prefix := strings.ToUpper(globals.APP_NAME)
+	prefix := strings.ToUpper(globals.AppName)
 	err := envconfig.Process(prefix, &c)
 
 	if c.Email == "" || c.Password == "" {
@@ -44,9 +45,9 @@ func Init() {
 		fmt.Printf("No trigger defined, defaulting to %s\n", c.Trigger)
 	}
 
-	if c.ApiInterface == "" {
-		c.ApiInterface = "127.0.0.1:8086"
-		fmt.Printf("WARN: No API interface defined, defaulting to %s\n", c.ApiInterface)
+	if c.APIInterface == "" {
+		c.APIInterface = "127.0.0.1:8086"
+		fmt.Printf("WARN: No API interface defined, defaulting to %s\n", c.APIInterface)
 	}
 
 	if c.Guild == "" {
@@ -60,6 +61,7 @@ func Init() {
 	//spew.Dump(c)
 }
 
+// Get returns a reference to the config struct
 func Get() *types.Config {
 	return &c
 }

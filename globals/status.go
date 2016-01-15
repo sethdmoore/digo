@@ -4,6 +4,6 @@ package globals
 const (
 	_ = iota // index starts at 0 (uninitialized)
 	MATCH
-	NO_MATCH
+	NOMATCH
 	HELP
 )

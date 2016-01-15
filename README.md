@@ -197,3 +197,4 @@ $ go build
 - [x] Upgrade bwmarrin/discordgo Develop branch
 - [ ] Support Windows plugins by invoking interpreter directly (os/exec)
 - [ ] Allow triggering plugins from content of messages (regexp, instead of just /commands)
+- [ ] Configurable plugin paths

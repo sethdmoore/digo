@@ -22,20 +22,20 @@ import (
 var p types.Plugins
 var log *logging.Logger
 
-func search_plugin_dir() (plugin_path string, plugins []string, e error) {
+func searchPluginDir() (pluginPath string, plugins []string, e error) {
 	found := false
 	var files []os.FileInfo
 	var err error
 
 loop:
 	// search all directories specified
-	for _, path := range globals.PLUGIN_PATHS {
+	for _, path := range globals.PluginPaths {
 		// try to read contents of each directory
 		files, err = ioutil.ReadDir(path)
 		if err == nil {
 			found = true
 			log.Notice("Found plugins directory \"%s\"\n", path)
-			plugin_path = path
+			pluginPath = path
 			break loop
 		}
 	}
@@ -62,13 +62,13 @@ loop:
 	return
 }
 
-func register_plugin(dir string, file string) (plugin *types.Plugin, err error) {
+func registerPlugin(dir string, file string) (plugin *types.Plugin, err error) {
 	c := config.Get()
 	// register string is hardcoded, always the first argument
 	config, err := Exec(dir, file, []string{"register"})
 	err = json.Unmarshal(config, &plugin)
 	if err != nil {
-		err = errors.New(fmt.Sprintf("Couldn't run \"%s register\"\n", file))
+		err = fmt.Errorf("Couldn't run \"%s register\"\n", file)
 		log.Errorf("%s\n", err)
 		log.Debugf("%s\n", config)
 		return
@@ -84,7 +84,7 @@ func register_plugin(dir string, file string) (plugin *types.Plugin, err error) 
 
 	// input validation
 	if len(plugin.Triggers) == 0 && len(plugin.Tokens) == 0 {
-		err = errors.New(fmt.Sprintf("Plugin \"%s\" does nothing! It has no triggers or tokens. Not registering.", file))
+		err = fmt.Errorf("Plugin \"%s\" does nothing! It has no triggers or tokens. Not registering.", file)
 		return
 	}
 
@@ -117,9 +117,11 @@ func register_plugin(dir string, file string) (plugin *types.Plugin, err error) 
 	return
 }
 
+// Register function builds the Plugins struct and calls "register" on each
+// plugin
 func Register() (found bool) {
-	var plugin_files []string
-	var enabled_plugins []string
+	var pluginFiles []string
+	var enabledPlugins []string
 	var plugin *types.Plugin
 	var err error
 	c := config.Get()
@@ -129,31 +131,31 @@ func Register() (found bool) {
 		c.Trigger: "__internal",
 	}
 
-	p.Directory, plugin_files, err = search_plugin_dir()
-	log.Debug("Potential plugins: %v\n", plugin_files)
+	p.Directory, pluginFiles, err = searchPluginDir()
+	log.Debug("Potential plugins: %v\n", pluginFiles)
 	if err != nil {
 		found = false
 		log.Warning("Problem with plugins directory: %s\n", err)
 		return
-	} else {
-		found = true
 	}
+	found = true
 
-	for _, plugin_name := range plugin_files {
-		plugin, err = register_plugin(p.Directory, plugin_name)
+	for _, pluginName := range pluginFiles {
+		plugin, err = registerPlugin(p.Directory, pluginName)
 		if err != nil {
-			log.Warningf("Could not register %s: %s\n", plugin_name, err)
+			log.Warningf("Could not register %s: %s\n", pluginName, err)
 		} else {
-			p.Plugins[plugin_name] = plugin
-			enabled_plugins = append(enabled_plugins, plugin.Name)
+			p.Plugins[pluginName] = plugin
+			enabledPlugins = append(enabledPlugins, plugin.Name)
 		}
 	}
 
-	log.Noticef("Enabled Plugins: %s", strings.Join(enabled_plugins, ", "))
+	log.Noticef("Enabled Plugins: %s", strings.Join(enabledPlugins, ", "))
 
 	return found
 }
 
+// Exec executes a command on a simple-type plugin
 func Exec(dir string, command string, arguments []string) (output []byte, err error) {
 	// maybe? this will work on windows?
 	path := filepath.FromSlash(dir + "/" + command)
@@ -167,7 +169,8 @@ func Exec(dir string, command string, arguments []string) (output []byte, err er
 	return output, err
 }
 
-func ExecJson(dir string, command string, arguments *types.PluginMessage) ([]byte, error) {
+// ExecJSON executes a command on json-type plugin
+func ExecJSON(dir string, command string, arguments *types.PluginMessage) ([]byte, error) {
 	path := filepath.FromSlash(dir + "/" + command)
 	var err error
 	var blob []byte
@@ -185,6 +188,7 @@ func ExecJson(dir string, command string, arguments *types.PluginMessage) ([]byt
 	return output, err
 }
 
+// Init sets up the Plugins struct and logger
 func Init(logger *logging.Logger) *types.Plugins {
 	//c := config.Get()
 	p.Plugins = make(map[string]*types.Plugin)
@@ -195,7 +199,7 @@ func Init(logger *logging.Logger) *types.Plugins {
 	if !success {
 		log.Warning("No plugin directory found")
 		places := ""
-		for _, place := range globals.PLUGIN_PATHS {
+		for _, place := range globals.PluginPaths {
 			places += place + "\n"
 		}
 

@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-func set_loglevel(input string, c *types.Config) logging.Level {
+func setLoglevel(input string, c *types.Config) logging.Level {
 	// set loglevel
 	var err error
 	var llevel logging.Level
@@ -28,111 +28,109 @@ func set_loglevel(input string, c *types.Config) logging.Level {
 	return llevel
 }
 
-func open_logfile(log_location string) (*os.File, bool) {
+func openLogfile(logLocation string) (*os.File, bool) {
 	var f *os.File
 	var err error
-	_, err = os.Stat(log_location)
+	_, err = os.Stat(logLocation)
 	if err != nil {
 		fmt.Printf("WARN: log file could not be read: %s\n", err)
-		f, err = os.Create(log_location)
-		if err == nil {
-			return f, true
-		} else {
+		f, err = os.Create(logLocation)
+		if err != nil {
 			fmt.Printf("WARN: could not create log file: %s\n", err)
 			return nil, false
 		}
+
+		// blame Gofmt for this extra check. Would be fiiiine to put it in the else case
+		if f != nil {
+			return f, true
+		}
 	}
 
-	f, err = os.OpenFile(log_location, os.SEEK_END, os.ModeAppend)
+	f, err = os.OpenFile(logLocation, os.SEEK_END, os.ModeAppend)
 	if err == nil {
-		return f, true
-	} else {
 		fmt.Printf("Could not open log file for writing: %s\n", err)
 		return nil, false
 	}
+	return f, true
 }
 
+// Init sets up the Logger
 func Init() *logging.Logger {
 	var log = logging.MustGetLogger("Digo")
 	var llevel logging.Level
-	var use_stdout bool
-	var use_logfile bool
+	var useStdout bool
+	var useLogfile bool
 	c := config.Get()
 
 	// scoping made this a requirement //
-	var logfile_backend *logging.LogBackend
-	var logfile_backendFormatter logging.Backend
-	var logfile_backend_leveled logging.LeveledBackend
+	var logfileBackend *logging.LogBackend
+	var logfileBackendFormatter logging.Backend
+	var logfileBackendLeveled logging.LeveledBackend
 
-	var stdout_backend *logging.LogBackend
-	var stdout_backendFormatter logging.Backend
-	var stdout_backend_leveled logging.LeveledBackend
+	var stdoutBackend *logging.LogBackend
+	var stdoutBackendFormatter logging.Backend
+	var stdoutBackenedLeveled logging.LeveledBackend
 	//                                 //
 
 	// log streams. ["stdout"] || ["file"] || ["stdout", "file"]
 	for _, item := range strings.Split(c.LogStreams, ",") {
 		switch {
 		case item == "stdout":
-			use_stdout = true
+			useStdout = true
 		case item == "file":
-			use_logfile = true
+			useLogfile = true
 		}
 	}
 
-	llevel = set_loglevel(c.LogLevel, c)
+	llevel = setLoglevel(c.LogLevel, c)
 
 	// If you want to completely suppress program output, redirect it to /dev/null
-	if !use_stdout && !use_logfile {
+	if !useStdout && !useLogfile {
 		fmt.Println("Explicitly enabling stdout")
-		use_stdout = true
-		use_logfile = false // probably don't explicitly need this
+		useStdout = true
+		useLogfile = false // probably don't explicitly need this
 	}
 
-	if use_logfile {
-		logfile, success := open_logfile(c.LogFile)
+	if useLogfile {
+		logfile, success := openLogfile(c.LogFile)
 		if success {
-			var logfile_format = logging.MustStringFormatter(
+			var logfileFormat = logging.MustStringFormatter(
 				`%{time:15:04:05} %{shortfunc} > %{level:.4s} %{id:03x} %{message}`,
 			)
-			logfile_backend = logging.NewLogBackend(logfile, "", 0)
-			logfile_backendFormatter = logging.NewBackendFormatter(logfile_backend, logfile_format)
-			logfile_backend_leveled = logging.AddModuleLevel(logfile_backendFormatter)
-			//logfile_backend_leveled.SetLevel(llevel, "Digo")
-			logfile_backend_leveled.SetLevel(logging.DEBUG, "Digo")
+			logfileBackend = logging.NewLogBackend(logfile, "", 0)
+			logfileBackendFormatter = logging.NewBackendFormatter(logfileBackend, logfileFormat)
+			logfileBackendLeveled = logging.AddModuleLevel(logfileBackendFormatter)
+			//logfileBackendLeveled.SetLevel(llevel, "Digo")
+			logfileBackendLeveled.SetLevel(logging.DEBUG, "Digo")
 			// log stuff
 		} else {
 			fmt.Println("Disabled logfile")
-			use_logfile = false
+			useLogfile = false
 		}
 	}
 
-	if use_stdout {
-		var stdout_format = logging.MustStringFormatter(
+	if useStdout {
+		var stdoutFormat = logging.MustStringFormatter(
 			`%{color}%{time:15:04:05} %{shortfunc} > %{level:.4s} %{id:03x}%{color:reset} %{message}`,
 		)
-		stdout_backend = logging.NewLogBackend(os.Stdout, "", 0)
-		stdout_backendFormatter = logging.NewBackendFormatter(stdout_backend, stdout_format)
-		stdout_backend_leveled = logging.AddModuleLevel(stdout_backendFormatter)
-		stdout_backend_leveled.SetLevel(llevel, "Digo")
+		stdoutBackend = logging.NewLogBackend(os.Stdout, "", 0)
+		stdoutBackendFormatter = logging.NewBackendFormatter(stdoutBackend, stdoutFormat)
+		stdoutBackenedLeveled = logging.AddModuleLevel(stdoutBackendFormatter)
+		stdoutBackenedLeveled.SetLevel(llevel, "Digo")
 	}
 
 	switch {
-	case use_stdout && use_logfile:
-		logging.SetBackend(stdout_backend_leveled, logfile_backend_leveled)
-	case use_stdout:
-		logging.SetBackend(stdout_backend_leveled)
-	case use_logfile:
-		logging.SetBackend(logfile_backend_leveled)
+	case useStdout && useLogfile:
+		logging.SetBackend(stdoutBackenedLeveled, logfileBackendLeveled)
+	case useStdout:
+		logging.SetBackend(stdoutBackenedLeveled)
+	case useLogfile:
+		logging.SetBackend(logfileBackendLeveled)
 	default:
 		fmt.Println("Error: Could not enable any output.")
 		os.Exit(2)
 
 	}
-	//logfile_backend := logging.NewLogBackend(os.Stdout, "", 0)
-
-	//stdout_backendLevel := logging.AddModuleLevel(stdout_backend)
-
-	//stdout_backend_leveled := logging.AddModuleLevel(stdout_backend)
 
 	log.Debug("Logger initialized")
 

@@ -16,7 +16,8 @@ import (
 var log *logging.Logger
 var session discordgo.Session
 
-func poll_conn(s *discordgo.Session) {
+/* may be deprecated by session.Status in discordgo */
+func pollConn(s *discordgo.Session) {
 	c := config.Get()
 	for {
 		time.Sleep(10 * time.Second)
@@ -31,7 +32,7 @@ func poll_conn(s *discordgo.Session) {
 
 		if !found {
 			log.Warningf("Could not find membership matching guild ID. %s", c.Guild)
-			log.Warningf("Maybe I need a new invite? Using code %s", c.InviteId)
+			log.Warningf("Maybe I need a new invite? Using code %s", c.InviteID)
 			if s.Token != "" {
 				s.Close()
 			}
@@ -48,28 +49,28 @@ func poll_conn(s *discordgo.Session) {
 	}
 }
 
-func accept_invite(s *discordgo.Session) error {
+func acceptInvite(s *discordgo.Session) error {
 	var err error
 	c := config.Get()
 	//time.Sleep(1 * time.Second)
-	if c.InviteId != "" {
-		log.Debugf("Attempting to accept invite: %s", c.InviteId)
-		_, err = s.InviteAccept(c.InviteId)
+	if c.InviteID != "" {
+		log.Debugf("Attempting to accept invite: %s", c.InviteID)
+		_, err = s.InviteAccept(c.InviteID)
 	} else {
 		log.Debug("No DIGO_INVITE_ID specified, no invite to accept.")
 	}
 	return err
 }
 
-func dgo_listen(s *discordgo.Session) error {
+func dgoListen(s *discordgo.Session) error {
 	log.Notice("Digo listening for WS Events")
 	// Listen blocks until it returns
-	//go accept_invite(s)
+	//go acceptInvite(s)
 	err := s.Listen()
 	return err
 }
 
-func DoLogin(s *discordgo.Session) error {
+func doLogin(s *discordgo.Session) error {
 	var err error
 	var token string
 	c := config.Get()
@@ -88,12 +89,12 @@ func DoLogin(s *discordgo.Session) error {
 	return err
 }
 
-func LoginFlow(s *discordgo.Session) {
+func loginFlow(s *discordgo.Session) {
 	var err error
 
 	for {
 		// first we establish a login token
-		err = DoLogin(s)
+		err = doLogin(s)
 		if err == nil {
 			log.Info("Login successful")
 		} else {
@@ -105,7 +106,7 @@ func LoginFlow(s *discordgo.Session) {
 		}
 		// then we attempt a websocket connection
 		// If anything fails along the way here, restart the process
-		err = DoWsHandshake(s)
+		err = doWsHandshake(s)
 
 		if err == nil {
 			log.Debug("Websocket Handshake complete")
@@ -115,7 +116,7 @@ func LoginFlow(s *discordgo.Session) {
 			continue
 		}
 
-		err = accept_invite(s)
+		err = acceptInvite(s)
 		if err == nil {
 			log.Notice("Accepted guild invite!")
 		} else {
@@ -125,7 +126,7 @@ func LoginFlow(s *discordgo.Session) {
 			continue
 		}
 
-		err = dgo_listen(s)
+		err = dgoListen(s)
 		if err != nil {
 			log.Errorf("Connection lost, restarting connection cycle.")
 			time.Sleep(3 * time.Second)
@@ -135,7 +136,7 @@ func LoginFlow(s *discordgo.Session) {
 	}
 }
 
-func DoWsHandshake(dg *discordgo.Session) error {
+func doWsHandshake(dg *discordgo.Session) error {
 	var err error
 
 	// open websocket...
@@ -152,11 +153,12 @@ func DoWsHandshake(dg *discordgo.Session) error {
 	return err
 }
 
-// instead of passing package vars around..
+// Get returns a ref to a session
 func Get() *discordgo.Session {
 	return &session
 }
 
+// Init returns a Session reference
 func Init(logger *logging.Logger) *discordgo.Session {
 	//var err error
 	// set the config reference
@@ -168,7 +170,7 @@ func Init(logger *logging.Logger) *discordgo.Session {
 		OnMessageCreate: handler.MessageHandler,
 	}
 
-	go LoginFlow(&session)
+	go loginFlow(&session)
 
 	time.Sleep(1 * time.Second)
 	for {

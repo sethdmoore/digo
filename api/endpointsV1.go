@@ -33,7 +33,7 @@ func register_plugin_v1(c *gin.Context) {
 }
 */
 
-func channels_v1(c *gin.Context) {
+func channelsV1(c *gin.Context) {
 	// this route is expensive since it's doing live fetching of channel information
 	// expensive as in ~100ms
 	var ch []*discordgo.Channel
@@ -50,7 +50,7 @@ func channels_v1(c *gin.Context) {
 	}
 }
 
-func message_v1(c *gin.Context) {
+func messageV1(c *gin.Context) {
 	// this route is also expensive, since it ends up POSTing to Discord's API
 	var m *types.Message
 	err := c.BindJSON(&m)
@@ -82,8 +82,8 @@ func message_v1(c *gin.Context) {
 	}
 }
 
-func version_v1(c *gin.Context) {
+func versionV1(c *gin.Context) {
 	c.JSON(200, gin.H{
-		"version": globals.VERSION,
+		"version": globals.Version,
 	})
 }

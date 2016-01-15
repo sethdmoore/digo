@@ -49,13 +49,13 @@ func main() {
 	// conn.Listen(s, c, log)
 
 	// enable the API, if applicable
-	if c.DisableApi {
+	if c.DisableAPI {
 		log.Notice("API explicitly disabled.")
 	} else {
-		go api.Listen(c.ApiInterface, s, log)
+		go api.Listen(c.APIInterface, s, log)
 	}
 
-	log.Noticef("Digo v%s Online", globals.VERSION)
+	log.Noticef("Digo v%s Online", globals.Version)
 
 	<-lock
 }
