@@ -98,7 +98,7 @@ func loginFlow(s *discordgo.Session) {
 		if err == nil {
 			log.Info("Login successful")
 		} else {
-			log.Error("Login failed: %s", err)
+			log.Errorf("Login failed: %v", err)
 			log.Error("Retrying login...")
 			time.Sleep(3 * time.Second)
 			// explicitly call continue so we don't try to handshake
@@ -111,7 +111,7 @@ func loginFlow(s *discordgo.Session) {
 		if err == nil {
 			log.Debug("Websocket Handshake complete")
 		} else {
-			log.Error("Websocket handshake failed: %s", err)
+			log.Errorf("Websocket handshake failed: %v", err)
 			time.Sleep(3 * time.Second)
 			continue
 		}
@@ -120,7 +120,7 @@ func loginFlow(s *discordgo.Session) {
 		if err == nil {
 			log.Notice("Accepted guild invite!")
 		} else {
-			log.Errorf("Could not accept invite: %s", err)
+			log.Errorf("Could not accept invite: %v", err)
 			log.Error("Retrying...")
 			time.Sleep(3 * time.Second)
 			continue
