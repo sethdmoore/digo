@@ -1,4 +1,5 @@
 # Digo
+[![Go report](http://goreportcard.com/badge/sethdmoore/digo)](http://goreportcard.com/report/sethdmoore/digo)  
 A pluggable bot for your Discord server, written in Golang.
 
 ## Notice
