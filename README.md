@@ -152,6 +152,7 @@ The plugin should respond with a JSON blob to stdout in the same format the API 
 
 #### Example Services included
 * [Twitter Stalker](examples/services)
+* [Steam News](examples/services)
 
 
 ## API
