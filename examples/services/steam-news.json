@@ -1,0 +1,10 @@
+{
+  "digo_api_url": "http://127.0.0.1:8086",
+  "basic_auth_user": "mydigobasicauth",
+  "basic_auth_password": "mydigopassword",
+  "steam_apps": {
+    "570": [
+      "2345676829"
+    ]
+  }
+}

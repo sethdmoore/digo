@@ -9,10 +9,18 @@ import json
 
 DIGO_MSG_ROUTE = "v1/message"
 
-INTERVAL = 200.0
-CONFIG_FILE = os.path.join(os.path.dirname(__file__), "twitter-stalk.json")
+ARTICLES = "3"
+STEAM_API = \
+        ("http://api.steampowered.com/ISteamNews/"
+        "GetNewsForApp/v0002/?count=%s&format=json&appid=") % ARTICLES
 
-CONFIG_KEYS = ["consumer_key", "consumer_secret", "access_token", "stalking", "digo_api_url"]
+INTERVAL = 360.0
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), "steam-news.json")
+
+# example request
+# http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid=570&count=10&format=json
+
+CONFIG_KEYS = ["steam_apps", "digo_api_url"]
 
 def validate_config(config):
     """
@@ -26,9 +34,6 @@ def validate_config(config):
         print "Error! The following keys are missing from %s" % CONFIG_FILE
         print ", ".join(missing)
         sys.exit(2)
-    if "basic_auth_user" in config and "basic_auth_password" in config:
-        if config["basic_auth_user"] and config["basic_auth_password"]:
-            print "Basic auth enabled for API"
 
 
 
@@ -46,57 +51,56 @@ def fetch_config():
     return conf
 
 
-def configure_twitter(config):
-    """
-    Instantiate a twitter API object
-    """
-    try:
-        t = twitter.Api(consumer_key=config["consumer_key"],
-                        consumer_secret=config["consumer_secret"],
-                        access_token_key=config["access_token"],
-                        access_token_secret=config["access_token_secret"])
-    except KeyError as e:
-        print "Could  not configure twitter API: %s" % e
-        print "Ensure the file %s exists, is proper JSON, and contains:"
-        print '{"consumer_key": "AAA", "consumer_secret: "YYY",'
-        print '"access_token": "YYY", "access_token_secret": "ZZZ",'
-        print '"stalking": {"discordapp", ["*"]}'
-        sys.exit(2)
-    except Exception as e:
-        print "Could not instantiate twitter API object: %s" % e
-        sys.exit(2)
-
-    return t
-
-
-def stalk(t, account):
+def check_news(appid):
     statuses = []
     err = ""
     now = time.time()
+    url = STEAM_API + appid
+    #blob = {}
+    "=".join(("appid", str(appid)))
+
     try:
-        tweets = t.GetUserTimeline(screen_name=account,
-                                     count=4,
-                                     exclude_replies=True,
-                                     include_rts=False)
+        r = requests.get(STEAM_API + appid)
+
     except Exception as e:
-        print "Exception calling Twitter API. Probably rate limits"
-        print "Could not utilize twitter API: %s" % e
         err = "Exception: %s" % e
         return [], err
 
-    for status in tweets:
-        tweet_time =  status.created_at_in_seconds
-        delta = now - tweet_time
+    try:
+        blob = r.json()
+
+    except Exception as e:
+        print "Did not receive JSON for appid: %s" % str(appid)
+        return
+
+    if not "appnews" in blob:
+        print "No news??"
+        print "%s" % blob
+        return
+
+    if not "newsitems" in blob["appnews"]:
+        print "No newsitems??"
+        print "%s" % blob
+        return
+
+    for item in blob["appnews"]["newsitems"]:
+        # skip BS
+        if item["is_external_url"]:
+            continue
+
+        dtime = item["date"]
+        delta = now - dtime
+
         if delta < INTERVAL:
-            print u"New Tweet: @%s: %s" % (account, status.text)
-            statuses.append(status)
+            print "New item: %s, %s" % (item["title"], item["url"])
+            statuses.append(item)
         else:
             pass
             # print "skipped, too old: %s %s" % (delta, status.text)
     return statuses, err
 
 
-def post_statuses(config, account, statuses, channels):
+def post_statuses(config, account, items, channels):
     h = {"content-type": "application/json"}
     auth_enabled = False
     api = "/".join((config["digo_api_url"], DIGO_MSG_ROUTE))
@@ -111,11 +115,11 @@ def post_statuses(config, account, statuses, channels):
         passwd = config["basic_auth_password"]
         auth = HTTPBasicAuth(user, passwd)
 
-    for status in statuses:
+    for item in items:
         message = []
-        id_str = str(status.id)
-        src = "/".join(("https://twitter.com", account, "status", id_str))
-        message.append("**@%s** - Twitter - %s" % (account, src))
+        # id_str = str(status.id)
+        # src = "/".join(("https://twitter.com", account, "status", id_str))
+        message.append("**%s** %s" % (item["title"], item["url"]))
         j = {"prefix": "", "payload": message, "channels": channels}
         try:
             if auth_enabled:
@@ -147,16 +151,15 @@ def main():
     err = ""
 
     config = fetch_config()
-    t = configure_twitter(config)
 
-    print "Twitter Stalk is stalking..."
+    print "Patrolling for steam news"
     while True:
-        for account, channels in config["stalking"].iteritems():
-            statuses, err = stalk(t, account)
+        for app, channels in config["steam_apps"].iteritems():
+            news, err = check_news(app)
             # exit loop immediately if rate limited
             if err:
                 break
-            post_statuses(config, account, statuses, channels)
+            post_statuses(config, app, news, channels)
 
         # exponential backoff
         # nice for tuning against rate limiting
@@ -168,7 +171,6 @@ def main():
                 print "Tuning backoff from %s to %s" % (backoff, backoff * 2)
                 backoff *= 2
                 print "Sleeping for 15 minutes"
-                print "https://dev.twitter.com/rest/public/rate-limiting"
                 time.sleep(900)
 
             # don't want to sleep for 900 + backoff
