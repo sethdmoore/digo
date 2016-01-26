@@ -29,9 +29,9 @@ export DIGO_API_USERNAME=mydigo
 export DIGO_API_PASSWORD=secretpass
 export DIGO_DISCORD_INVITE_ID=xuja8ije23
 export DIGO_TRIGGER=/bot
-export DIGO_LOG_LEVEL=info  # set to debug at your own risk
-export DIGO_LOG_FILE=/var/log/digo.log  # set to debug at your own risk
-export DIGO_LOG_STREAMS=/var/log/digo.log  # set to debug at your own risk
+export DIGO_LOG_LEVEL=info  # set to debug at your own peril
+export DIGO_LOG_FILE=/var/log/digo.log
+export DIGO_LOG_STREAMS=stdout,file
 ./digo
 ```
 
